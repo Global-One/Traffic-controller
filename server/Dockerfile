@@ -2,13 +2,17 @@
 # https://hub.docker.com/_/python
 FROM python:3.7-slim
 
-# Copy local code to the container image.
-ENV APP_HOME /server/src/
-WORKDIR $APP_HOME
-COPY .. ./
+# 2
+COPY . /app
+COPY requirements.txt /app
+WORKDIR /app
 
 # Install production dependencies.
-RUN pip install -r server/requirements.txt gunicorn
+RUN pip install -r requirements.txt
+RUN pip install gunicorn
+
+# 4
+ENV PORT 8080
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
