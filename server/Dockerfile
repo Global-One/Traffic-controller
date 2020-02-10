@@ -3,7 +3,9 @@
 FROM python:3.7-slim
 
 # 2
-COPY . /app
+COPY app /app
+COPY app/templates /app/templates
+COPY app/static /app/static
 COPY requirements.txt /app
 WORKDIR /app
 
