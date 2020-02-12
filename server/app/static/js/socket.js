@@ -11,7 +11,7 @@ $(document).ready(function () {
 
     socket.on('move_car', function (msg) {
         let data = msg.data;
-        // carMarker.setLatLng(L.latLng(carMarker.getLatLng().lat + 0.00003, carMarker.getLatLng().lng + 0.0001));
+        carMarker.setLatLng(L.latLng(data.state.latitude, data.state.longitude));
         logEvent(msg.event_name, JSON.stringify(data))
     });
 
