@@ -82,16 +82,15 @@ window.onload = function (e) {
             <print geometry="skeleton" ids="yes" mode="skeleton" order="quadtile"/>
         </osm-script>`;
     request = (new DOMParser).parseFromString(request, "text/xml");
-    console.log(request);
     xhr.send(request);
     xhr.onload = () => {
         if (xhr.status === 200) {
             let data = xhr.response;
-            console.log(data.osm3s.timestamp_osm_base);
+            console.log("Server time: ", data.osm3s.timestamp_osm_base);
             addMarkers(data);
         }
     }
-}
+};
 
 function addMarkers(data) {
     let trafficLights = data.elements;
@@ -100,9 +99,9 @@ function addMarkers(data) {
         let state = Math.floor(Math.random() * 100);
         let marker;
         if (state % 2 === 0)
-            marker = L.marker([element.lat, element.lon], {icon: trafficGreenLight})
+            marker = L.marker([element.lat, element.lon], {icon: trafficGreenLight});
         else
-            marker = L.marker([element.lat, element.lon], {icon: trafficRedLight})
+            marker = L.marker([element.lat, element.lon], {icon: trafficRedLight});
         marker.addTo(map).on('click', changeColor);
         marker.bindPopup("<b>Traffic light</b><br>#" + marker.getLatLng().toString());
         let counter = new Counter(marker, 6000);

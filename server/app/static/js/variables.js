@@ -1,13 +1,13 @@
-const map = L.map('map').setView([50.4266541, 30.505516], 20);
+const map = L.map('map').setView([50.423025, 30.514246], 16);
 
 const trafficGreenLight = L.icon({
-        iconUrl: 'http://www.mediafire.com/convkey/7802/5kao4fhnsjs6ej3zg.jpg',
+        iconUrl: 'img/green-light.png',
 
         iconSize: [18, 18], // size of the icon
         iconAnchor: [9, 9], // point of the icon which will correspond to marker's locationr
     }),
     trafficRedLight = L.icon({
-        iconUrl: 'http://www.mediafire.com/convkey/9c0e/zkjo440rz6s2y7rzg.jpg?size_id=2',
+        iconUrl: 'img/red-light.png',
 
         iconSize: [18, 18], // size of the icon
         iconAnchor: [9, 9], // point of the icon which will correspond to marker's location
@@ -15,13 +15,18 @@ const trafficGreenLight = L.icon({
 
 let carIcon = L.icon({
     iconUrl: 'img/car.png',
-    iconSize: [25, 50]
+    iconSize: [25, 50],
+    iconAnchor: [12, 25],
+    popupAnchor: [0, 0]
 });
 
-let carMarker = new L.Marker([50.4266541, 30.505516],
+
+let carMarker = new L.Marker([50.4278, 30.5112],
     {
         icon: carIcon,
-        rotationAngle: 60,
+        rotationAngle: 90,
         rotationOrigin: "center center",
         id: "car"
     });
+
+carMarker.bindPopup(L.popup().setContent("Some text"));

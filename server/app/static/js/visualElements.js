@@ -1,4 +1,4 @@
-function logEvent(title, message) {
+function logEvent(title, message = NaN) {
     let div =
         `<div class="card">
             <div class="card-body">
@@ -17,7 +17,6 @@ function logEvent(title, message) {
 $("#control").scroll(function () {
     if ($("#control").scrollTop() > 20) {
         let btn = $("#arrow")[0];
-        console.log(btn);
         btn.style.display = "block";
     } else {
         $("#arrow")[0].style.display = "none";

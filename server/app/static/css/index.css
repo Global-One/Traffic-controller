@@ -8,8 +8,23 @@ html, body, #map {
     /*width: 100vh;*/
 }
 
+#map-container {
+    padding-right: 0;
+}
+
 #control {
     max-height: 100vh;
+}
+
+#buttons {
+    top: 0;
+    background: #fdfdfd;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+#startDiv {
+    margin: 0;
 }
 
 div#arrow {

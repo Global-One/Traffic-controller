@@ -1,22 +1,42 @@
 $(document).ready(function () {
+    let protocol = window.location.protocol;
     namespace = "/test";
-    var socket = io(namespace);
-    // var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+    // var socket = io(namespace);
+    const socket = io.connect(protocol + '//' + document.domain + ':' + location.port + namespace);
+
+    let simulation = new CarMovingSimulation();
 
     // send test event to the server
     socket.on('connect', function () {
-        socket.emit('connected');
+        logEvent("Connected.");
         console.log('Established connection with server!')
     });
 
-    socket.on('move_car', function (msg) {
-        let data = msg.data;
-        carMarker.setLatLng(L.latLng(data.state.latitude, data.state.longitude));
-        logEvent(msg.event_name, JSON.stringify(data))
+    socket.on('disconnect', () => {
+        logEvent("Disconnected.");
+        console.log("Disconnected from server.")
     });
 
-    socket.on('on_connect', function (msg) {
-        console.log("Connected");
-        // $('#log').append('<br>' + $('<div/>').text('Received #' + msg.data + ': ' + msg.data).html());
+    let canStart = false;
+    socket.on('move_car', function (msg) {
+        let data = msg.data;
+        logEvent(msg["event_name"], JSON.stringify(data));
+
+        simulation.processData(data);
+        canStart = true;
+    });
+
+    socket.on('start_simulation', () => {
+        if (canStart) {
+            simulation.stop();
+            simulation.start();
+        }
+        console.log("Starting!..");
+    });
+
+    socket.on('stop_simulation', () => {
+        console.log("Stopped.");
+        simulation.stop();
+        canStart = true;
     });
 });

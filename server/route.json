@@ -1,0 +1,128 @@
+[
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 157.75098937891366,
+      "latitude": 50.42739576940434,
+      "longitude": 30.5181097984314,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": -179.09061951115373,
+      "latitude": 50.42745728314047,
+      "longitude": 30.51787376403809,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 126.86994924923373,
+      "latitude": 50.42745386571276,
+      "longitude": 30.517535805702213,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 102.80428572548496,
+      "latitude": 50.42763157162548,
+      "longitude": 30.51732659339905,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 88.0908455017623,
+      "latitude": 50.42778193764612,
+      "longitude": 30.517272949218754,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 102.99463445747362,
+      "latitude": 50.427884459659154,
+      "longitude": 30.517278313636783,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 0.20317566449208554,
+      "latitude": 50.42801773794427,
+      "longitude": 30.517230033874515,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 1.743245604544134,
+      "latitude": 50.42802115533127,
+      "longitude": 30.51874279975891,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 90.53050958613083,
+      "latitude": 50.42806899872329,
+      "longitude": 30.521210432052616,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": -0.5644722163368425,
+      "latitude": 50.42954528534575,
+      "longitude": 30.521188974380497,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 93.57634055325414,
+      "latitude": 50.42953845079151,
+      "longitude": 30.522277951240543,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": -177.5104468042259,
+      "latitude": 50.42970247982096,
+      "longitude": 30.522261857986454,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 92.08256940933097,
+      "latitude": 50.42969222802325,
+      "longitude": 30.5218917131424,
+      "speed": 80
+    }
+  },
+  {
+    "state": {
+      "acceleration": 0,
+      "course": 92.08256940933097,
+      "latitude": 50.42988017729493,
+      "longitude": 30.52188098430634,
+      "speed": 0
+    }
+  }
+]

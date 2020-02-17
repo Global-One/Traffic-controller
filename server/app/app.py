@@ -1,15 +1,16 @@
-from flask import Flask, send_file, render_template, request
-from flask_socketio import SocketIO, send, emit
-
 import json
+from os import getenv
 from threading import Lock
 
-# from firebase import get_all_data, set_env
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO
 
-# TODO: secret key
 app = Flask(__name__, static_folder='static/', template_folder="templates/", static_url_path="")
+# TODO: secret key
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode=None)
+# TODO: use 'eventlet' instead
+socketio = SocketIO(app, async_mode='eventlet')
+# SSLify(app)
 
 thread = None
 thread_lock = Lock()
@@ -17,21 +18,37 @@ thread_lock = Lock()
 
 def background_thread():
     """Example of how to send server generated events to clients."""
-    count = 0
-    while True:
-        socketio.sleep(2)
-        count += 1
-        print(count)
-        socketio.emit('move_car',
-                      {"event_name": 'Server generated event',
-                       'data': {'speed': 0,
-                                'lon': 0, 'lng': 0}},
-                      namespace='/test')
+    global thread
+    print("File reading...")
+    with open("server/route.json") as f:
+        data = json.loads(f.read())
+        for state in data:
+            socketio.emit('move_car', {"event_name": "Change state", "data": state}, namespace='/test')
+            socketio.sleep(0.5)
+    thread = None
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/route_editor')
+def route_editor():
+    return render_template('routeEditor.html')
+
+
+@app.route('/simulation_status')
+def get_javascript_data():
+    status = request.args.get("status")
+    if status == 'start':
+        socketio.emit('start_simulation', namespace='/test')
+        return json.dumps({'Simulation status': status}), 200, {'ContentType': 'application/json'}
+    elif status == 'stop':
+        socketio.emit('stop_simulation', namespace='/test')
+        return json.dumps({'Simulation status': status}), 200, {'ContentType': 'application/json'}
+    else:
+        return json.dumps({'Simulation status': "undefined"}), 404, {'ContentType': 'application/json'}
 
 
 @app.route("/update_position", methods=["POST"])
@@ -51,10 +68,8 @@ def update_position():
 def test_connect():
     global thread
     with thread_lock:
-        if thread is None:
-            thread = socketio.start_background_task(background_thread)
+        thread = socketio.start_background_task(background_thread)
     print("Connected!!")
-    emit('on_connect', {'data': 'Connected'})
 
 
 @socketio.on('disconnect', namespace='/test')
@@ -63,4 +78,8 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0', port=getenv('PORT', 443))
+    # FLASK_DEBUG = 1
+    # app.debug = True
+    # app.config['DEBUG'] = True
+    # app.run(debug=True)
