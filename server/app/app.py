@@ -9,7 +9,7 @@ app = Flask(__name__, static_folder='static/', template_folder="templates/", sta
 # TODO: secret key
 app.config['SECRET_KEY'] = 'secret!'
 # TODO: use 'eventlet' instead
-socketio = SocketIO(app, async_mode='eventlet')
+socketio = SocketIO(app, async_mode=None)
 # SSLify(app)
 
 thread = None
@@ -20,9 +20,10 @@ def background_thread():
     """Example of how to send server generated events to clients."""
     global thread
     print("File reading...")
-    with open("server/route.json") as f:
+    with open("route.json") as f:
         data = json.loads(f.read())
         for state in data:
+            print(state)
             socketio.emit('move_car', {"event_name": "Change state", "data": state}, namespace='/test')
             socketio.sleep(0.5)
     thread = None
@@ -78,7 +79,7 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=getenv('PORT', 443))
+    socketio.run(app, host='0.0.0.0', port=getenv('PORT', 5000))
     # FLASK_DEBUG = 1
     # app.debug = True
     # app.config['DEBUG'] = True

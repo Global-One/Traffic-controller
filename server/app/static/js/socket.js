@@ -2,7 +2,7 @@ $(document).ready(function () {
     let protocol = window.location.protocol;
     namespace = "/test";
     // var socket = io(namespace);
-    const socket = io.connect(protocol + '//' + document.domain + ':' + location.port + namespace);
+    const socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
     let simulation = new CarMovingSimulation();
 
