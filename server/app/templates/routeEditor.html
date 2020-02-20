@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Route Editor</title>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/routeEditor.css') }}">
+
+
+        <!-- for bootstrap -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+              crossorigin="anonymous">
+        <!-- for leaflet library -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+              integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+              crossorigin=""/>
+
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col col-md-9">
+                    <div id="map"></div>
+                </div>
+
+                <div id="control" class="col col-md-3 overflow-auto pl-0">
+                    <div>
+
+                        <div id="buttons" class="col justify-content-md-center sticky-top">
+                            <div class="row justify-content-md-center">
+                                <div class="col-md-auto">
+                                    <button id="export_json" type="button" class="btn btn-outline-primary">Export to
+                                                                                                           JSON
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col mt-3">
+                                <h3>Route: </h3>
+                                <hr>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div id="route-points">
+                                {#                                <div id="point${i}">#}
+                                {#                                    <div class="row align-middle align-items-center">#}
+                                {#                                        <span point="${i}" class="close fat align-middle"#}
+                                {#                                              onclick="removePoint(this.parentElement.parentElement)"></span>#}
+                                {#                                        <h5 style="position: relative">#}
+                                {#                                            <a href="#" onclick="showPoint(${lat}, ${lng})">Point ${i}: </a>#}
+                                {#                                        </h5>#}
+                                {#                                    </div>#}
+                                {#                                    <p>#}
+                                {#                                        Latitude: ${lat};#}
+                                {#                                        <br>#}
+                                {#                                        Longitude: ${lng}#}
+                                {#                                    </p>#}
+                                {#                                    <div class="row">#}
+                                {#                                        <div class="col-md-6 col-lg-6 col-xl-4 justify-content-end">#}
+                                {#                                            <span>Speed: </span>#}
+                                {#                                            <span id="speedValue0" style="font-weight:bold;color:#4CAF50">50</span>#}
+                                {#                                        </div>#}
+                                {#                                        <div class="col-md-6 col-lg-6 col-xl-8 pl-0">#}
+                                {#                                            <input oninput="changeSpeed(this)" type="range" class="slider" id="speed0" min="0" max="130" value="50">#}
+                                {#                                        </div>#}
+                                {#                                    </div>#}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="arrow"></div>
+            </div>
+        </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+                integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+                crossorigin=""></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+                integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+                crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+                integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+                crossorigin="anonymous"></script>
+
+        <script src="{{ url_for('static', filename='js/mapRendering.js') }}" type="text/javascript"></script>
+        <script src="{{ url_for('static', filename='js/coordinatesProcessing.js') }}" type="text/javascript"></script>
+        <script src="{{ url_for('static', filename='js/carMoving.js') }}" type="text/javascript"></script>
+        <script src="{{ url_for('static', filename='js/carMovingSimulation.js') }}" type="text/javascript"></script>
+        <script src="{{ url_for('static', filename='js/routeEditor.js') }}" type="text/javascript"></script>
+    </body>
+</html>
