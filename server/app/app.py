@@ -20,7 +20,7 @@ def background_thread():
     """Example of how to send server generated events to clients."""
     global thread
     print("File reading...")
-    with open("route.json") as f:
+    with open("server/app/route.json") as f:
         data = json.loads(f.read())
         for state in data:
             print(state)

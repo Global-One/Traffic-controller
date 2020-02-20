@@ -28,7 +28,7 @@ $(document).ready(function () {
 
     socket.on('start_simulation', () => {
         if (canStart) {
-            simulation.stop();
+            // simulation.stop();
             simulation.start();
         }
         console.log("Starting!..");
