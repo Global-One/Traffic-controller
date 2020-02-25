@@ -161,7 +161,8 @@ send_data_from_bound_device(
     'emergency-vehicle-0',
     'emergency-vehicles-gateway',
     3,
-    'rsa_private_gateway.pem', 'RS256',
+    'rsa_private_gateway.pem',  # RS256_x509 key, RS256 doesn`t work
+    'RS256',  # used in JWT creation, works
     'roots.pem',
     'mqtt.googleapis.com',
     8883,
