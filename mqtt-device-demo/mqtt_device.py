@@ -2,6 +2,8 @@ import time
 import datetime
 import random
 
+import json
+
 import ssl
 
 import jwt
@@ -40,7 +42,7 @@ def get_client(
     client.tls_set(ca_certs=ca_certs, tls_version=ssl.PROTOCOL_TLSv1_2)
 
     def on_connect(unused_client, unused_userdata, unused_flags, rc):
-        print('on_connect', mqtt.connack_string(rc))
+        print('on_connect:', mqtt.connack_string(rc))
         global should_backoff
         global minimum_backoff_time
         should_backoff = False
@@ -50,14 +52,15 @@ def get_client(
         return '{}: {}'.format(rc, mqtt.error_string(rc))
 
     def on_disconnect(unused_client, unused_userdata, rc):
-        print('on_disconnect', error_str(rc))
+        print('on_disconnect:', error_str(rc))
         global should_backoff
         should_backoff = True
 
     client.on_connect = on_connect
-    client.on_publish = lambda unused_client, unused_userdata, unused_mid: print('on_publish')
+    client.on_publish = lambda unused_client, unused_userdata, unused_mid: print('on_publish.')
     client.on_disconnect = on_disconnect
-    client.on_message = lambda unused_client, unused_userdata, message: print('Received message \'{}\' on topic \'{}\' with Qos {}'.format(
+    client.on_message = lambda unused_client, unused_userdata, message:\
+        print('Received message \'{}\' on topic \'{}\' with Qos {}.'.format(
             str(message.payload.decode('utf-8')), message.topic, str(message.qos)))
 
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
@@ -82,7 +85,6 @@ def send_data_from_bound_device(
         registry_id,
         device_id,
         gateway_id,
-        num_messages,
         private_key_file,
         algorithm,
         ca_certs,
@@ -114,10 +116,13 @@ def send_data_from_bound_device(
     attach_device(client, device_id, '')
     time.sleep(5)
 
-    gateway_state = 'Starting gateway at: {}'.format(time.time())
+    gateway_state = 'Starting gateway at: {}.'.format(time.time())
     client.publish(gateway_topic, gateway_state, qos=1)
 
-    for i in range(1, num_messages + 1):
+    with open(payload, 'r') as f:
+        payload_ = json.load(f)
+
+    for telemetry in payload_:
         client.loop()
 
         if should_backoff:
@@ -130,10 +135,7 @@ def send_data_from_bound_device(
             minimum_backoff_time *= 2
             client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
-        payload = '{}/{}-{}-payload-{}'.format(registry_id, gateway_id, device_id, i)
-
-        print('Publishing message {}/{}: \'{}\' to {}'.format(i, num_messages, payload, device_topic))
-        client.publish(device_topic, '{} : {}'.format(device_id, payload), qos=1)
+        client.publish(device_topic, '{' + str(payload_[telemetry]) + '}', qos=1)
 
         seconds_since_issue = (datetime.datetime.utcnow() - jwt_iat).seconds
         if seconds_since_issue > 60 * jwt_exp_mins:
@@ -160,12 +162,11 @@ send_data_from_bound_device(
     'emergency-vehicles-registry',
     'emergency-vehicle-0',
     'emergency-vehicles-gateway',
-    3,
     'rsa_private_gateway.pem',  # RS256_x509 key, RS256 doesn`t work
     'RS256',  # used in JWT creation, works
     'roots.pem',
     'mqtt.googleapis.com',
     8883,
     20,
-    "Hello from gateway_demo.py"
+    'payload.json'
 )
