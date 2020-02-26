@@ -98,6 +98,9 @@ def test_disconnect():
 
 @app.route('/test')
 def build_route():
+    """
+    Function can be called with ?origins=lat,lng&destinations=lat,lng request
+    """
     lat1, lng1, lat2, lng2 = [float(y) for x in request.args for y in request.args[x].split(',')]
     api_request_url = f'http://router.project-osrm.org/route/v1/driving/{lng1},{lat1};{lng2},{lat2}' \
                       f'?alternatives=false&annotations=nodes'
