@@ -205,7 +205,7 @@ def send_data_from_bound_device(
             client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
         client.publish(device_topic, dumps(telemetry), qos=1)
-        time.sleep(1)
+        time.sleep(3)
 
         seconds_since_issue = (datetime.datetime.utcnow() - jwt_iat).seconds
         if seconds_since_issue > 60 * jwt_exp_mins:
