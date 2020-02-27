@@ -1,6 +1,8 @@
 import time
 import datetime
 import random
+import functools
+import numpy
 
 import ssl
 
@@ -36,7 +38,20 @@ def payload_builder(device_id):
 
     telemetry = []
 
-    for node in base_snapshot['routes'][base_snapshot['last_route_id']]['nodes'].values():
+    route = []
+
+    def extend_route(node1, node2):
+        for lat, lng in ((lat, lng) for lat, lng in zip(
+                numpy.arange(node1['lat'], node2['lat'], 0.0001413),
+                numpy.arange(node1['lng'], node2['lng'], 0.0001413))
+                         ):
+            route.append({"lat": lat, "lng": lng})
+        return node2
+
+    # takes two neighbour nodes and creates additional nodes in-between
+    functools.reduce(extend_route, base_snapshot['routes'][base_snapshot['last_route_id']]['nodes'].values())
+
+    for node in route:
         telemetry.append({
             "id": device_id,
             "msec": "TODO",
@@ -206,7 +221,6 @@ def send_data_from_bound_device(
                 mqtt_bridge_hostname,
                 mqtt_bridge_port
             )
-        time.sleep(5)
 
     detach_device(client, device_id)
 
