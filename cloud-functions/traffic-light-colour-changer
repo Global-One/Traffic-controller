@@ -21,20 +21,25 @@ def degreesToRadians(degrees):
 
 
 def traffic_light_changer(request):
-    request_args=request.args
+
+    request_args = request.args
+    car_id = request_args['car_id']
+    lat_car_rad = float(request_args['lat'])
+    lon_car_rad = float(request_args['lon'])
 
     earthRadiusKm = 6371
 
     distance_min = 0
     nearest_light = ""
-    traffic_lights_dict=dict(db.reference('traffic-lights').get())
 
-    for traffic_light in traffic_lights_dict:
+    routes_dict_last = int(db.reference(f'devices/{car_id}').child("last_route_id").get())
+    reference = f'devices/{car_id}/routes/{routes_dict_last}/traffic_signals'
+    traffic_light_dict = dict(db.reference(reference).get())
 
-        lat_car_rad = float(request_args['latitude'])
-        lon_car_rad = float(request_args['longitude'])
-        lat_tl_rad = traffic_lights_dict[traffic_light]['lat']
-        lon_tl_rad = traffic_lights_dict[traffic_light]['lon']
+    for traffic_light in traffic_light_dict:
+
+        lat_tl_rad = traffic_light_dict[traffic_light]['lat']
+        lon_tl_rad = traffic_light_dict[traffic_light]['lng']
 
         dLat = degreesToRadians(lat_car_rad - lat_tl_rad)
         dLon = degreesToRadians(lon_car_rad - lon_tl_rad)
