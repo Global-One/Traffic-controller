@@ -2,12 +2,69 @@ import time
 import datetime
 import random
 
-import json
-
 import ssl
 
 import jwt
 import paho.mqtt.client as mqtt
+
+from firebase_admin import initialize_app
+
+from firebase_admin import credentials
+from firebase_admin import db
+
+from json import loads, dumps
+from os import getenv
+
+from math import cos, radians, degrees, atan2
+
+initialize_app(credential=credentials.Certificate(loads(getenv("FIREBASE_CONFIG"))), options={'databaseURL': 'https://green-waves.firebaseio.com/'})
+
+
+def payload_builder(device_id):
+
+    def angle_between_coordinates(ll1, ll2):
+        lat1, lng1 = ll1[0], ll1[1]
+        lat2, lng2 = ll2[0], ll2[1]
+
+        dy = lat2 - lat1
+        dx = cos(radians(lat1)) * (lng2 - lng1)
+        return degrees(atan2(dy, dx))
+
+    base = db.reference(f'devices/{device_id}')
+
+    base_snapshot = dict(base.get())
+
+    telemetry = []
+
+    for node in base_snapshot['routes'][base_snapshot['last_route_id']]['nodes'].values():
+        telemetry.append({
+            "id": device_id,
+            "msec": "TODO",
+            "name": "Emergency0",
+            "skin": "ambulance",
+            "state": {
+                "acceleration": 0,
+                "course": angle_between_coordinates(
+                    (
+                        telemetry[-1]['state']['latitude'] if telemetry else 0,
+                        telemetry[-1]['state']['longitude'] if telemetry else 0
+                    ), (
+                        float(node['lat']),
+                        float(node['lng'])
+                    )
+                ),
+                "gear": "TODO",
+                "latitude": float(node['lat']),
+                "longitude": float(node['lng']),
+                "rpm": "TODO",
+                "speed": 80
+            },
+            "status": "Moving",
+            "timestp": "TODO",
+            "type": "Emergency"
+        })
+
+    return telemetry
 
 
 def create_jwt(project_id, private_key_file, algorithm):
@@ -114,15 +171,12 @@ def send_data_from_bound_device(
     )
 
     attach_device(client, device_id, '')
-    time.sleep(5)
+    time.sleep(3)
 
     gateway_state = 'Starting gateway at: {}.'.format(time.time())
     client.publish(gateway_topic, gateway_state, qos=1)
 
-    with open(payload, 'r') as f:
-        payload_ = json.load(f)
-
-    for telemetry in payload_:
+    for telemetry in payload:
         client.loop()
 
         if should_backoff:
@@ -135,7 +189,8 @@ def send_data_from_bound_device(
             minimum_backoff_time *= 2
             client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
-        client.publish(device_topic, '{' + str(payload_[telemetry]) + '}', qos=1)
+        client.publish(device_topic, dumps(telemetry), qos=1)
+        time.sleep(1)
 
         seconds_since_issue = (datetime.datetime.utcnow() - jwt_iat).seconds
         if seconds_since_issue > 60 * jwt_exp_mins:
@@ -168,5 +223,5 @@ send_data_from_bound_device(
     'mqtt.googleapis.com',
     8883,
     20,
-    'payload.json'
+    payload_builder("mqtt-001")
 )
