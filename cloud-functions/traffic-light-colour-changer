@@ -58,5 +58,5 @@ def traffic_light_changer(request):
             if distance < distance_min and distance <= 150:
                 distance_min = distance
                 nearest_light = traffic_light
-    db.reference(reference).child(nearest_light).child("state").set(True)
+    db.reference(reference).child(nearest_light).child("state").set(True) 
     return str(nearest_light)
