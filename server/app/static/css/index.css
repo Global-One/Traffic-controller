@@ -3,13 +3,57 @@ body {
     margin: 0;
 }
 
-html, body, #map {
-    height: 100vh;
-    /*width: 100vh;*/
+.navbar {
+    height: 3.5rem;
+    background-color: #01060bcc;
+}
+
+.navbar-brand {
+    color: #42a75d !important;
+    text-shadow: #42a75d9e 0px 0px 15px;
 }
 
 #map-container {
-    padding-right: 0;
+    /*padding-right: 0;*/
+    padding: 0.5rem;
+}
+
+#map {
+    height: calc(100vh - (3.5rem + 0.5rem * 2));
+    /*width: 100vh;*/
+}
+
+#route_builder {
+    top: 0;
+    right: 0;
+    z-index: 400;
+    background-color: white;
+    border-radius: 4px;
+}
+
+#route_builder img {
+    width: 10%;
+    height: 10%;
+}
+
+#route_builder input {
+    float: right;
+}
+
+#route_builder button {
+    float: right;
+}
+
+/* Chrome, Safari, Edge, Opera */
+#route_builder input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+#route_builder input[type=number] {
+    -moz-appearance: textfield;
 }
 
 #control {
@@ -21,6 +65,20 @@ html, body, #map {
     background: #fdfdfd;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     z-index: 10;
+}
+
+#log a {
+    font-size: 1.25rem;
+}
+
+#log .btn {
+    padding: 0;
+    border: none;
+}
+
+#log .btn-lg {
+    padding: 0;
+    border: none;
 }
 
 #startDiv {
@@ -50,7 +108,6 @@ div#arrow {
     transform-origin: 100% 0;
 }
 
-
 #arrow:after {
     content: '';
     float: left;
@@ -79,3 +136,58 @@ div#arrow {
 
 }
 
+/* Center the loader */
+#loader {
+    z-index: 1002;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 150px;
+    height: 150px;
+    margin: -75px 0 0 -75px;
+    border: 16px solid white;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+#loader_background {
+    background-color: #EFEFEF;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 1001;
+    top: 0px;
+    left: 0px;
+    opacity: .5; /* in FireFox */
+    filter: alpha(opacity=50); /* in IE */
+}
+
+#loading {
+    display: none;
+    -webkit-transition: opacity 1s ease-in-out;
+    -moz-transition: opacity 1s ease-in-out;
+    -ms-transition: opacity 1s ease-in-out;
+    -o-transition: opacity 1s ease-in-out;
+    opacity: 1;
+}
+
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

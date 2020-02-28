@@ -3,6 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <title>Route Editor</title>
+        <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+
 
         <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/routeEditor.css') }}">
@@ -47,28 +49,6 @@
 
                         <div class="col">
                             <div id="route-points">
-                                {#                                <div id="point${i}">#}
-                                {#                                    <div class="row align-middle align-items-center">#}
-                                {#                                        <span point="${i}" class="close fat align-middle"#}
-                                {#                                              onclick="removePoint(this.parentElement.parentElement)"></span>#}
-                                {#                                        <h5 style="position: relative">#}
-                                {#                                            <a href="#" onclick="showPoint(${lat}, ${lng})">Point ${i}: </a>#}
-                                {#                                        </h5>#}
-                                {#                                    </div>#}
-                                {#                                    <p>#}
-                                {#                                        Latitude: ${lat};#}
-                                {#                                        <br>#}
-                                {#                                        Longitude: ${lng}#}
-                                {#                                    </p>#}
-                                {#                                    <div class="row">#}
-                                {#                                        <div class="col-md-6 col-lg-6 col-xl-4 justify-content-end">#}
-                                {#                                            <span>Speed: </span>#}
-                                {#                                            <span id="speedValue0" style="font-weight:bold;color:#4CAF50">50</span>#}
-                                {#                                        </div>#}
-                                {#                                        <div class="col-md-6 col-lg-6 col-xl-8 pl-0">#}
-                                {#                                            <input oninput="changeSpeed(this)" type="range" class="slider" id="speed0" min="0" max="130" value="50">#}
-                                {#                                        </div>#}
-                                {#                                    </div>#}
                             </div>
                         </div>
                     </div>

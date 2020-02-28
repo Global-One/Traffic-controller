@@ -1,12 +1,12 @@
 $("#start").click(() => {
     $.get("/simulation_status", {"status": "start"}, function (data, status) {
-        alert("Data: " + data + "\nStatus: " + status);
+        console.log("Data: " + data + "\nStatus: " + status);
     });
 });
 
 $("#stop").click(() => {
     $.get("/simulation_status", {"status": "stop"}, function (data, status) {
-        alert("Data: " + data + "\nStatus: " + status);
+        console.log("Data: " + data + "\nStatus: " + status);
     });
 });
 

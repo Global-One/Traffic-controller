@@ -6,7 +6,7 @@ FROM python:3.7-slim
 COPY app /app
 COPY app/templates /app/templates
 COPY app/static /app/static
-COPY requirements.txt /app
+COPY app/requirements.txt /app
 WORKDIR /app
 
 # Install production dependencies.
