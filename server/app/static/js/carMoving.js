@@ -1,4 +1,4 @@
-function Move() {
+function Move(marker) {
     let i;
     let fps;
     let carPos;
@@ -36,15 +36,14 @@ function Move() {
                 return;
             }
             carPos = calculateCoords(_data, fps, loop);
-            // map.panTo(L.latLng(carPos[0][0], carPos[0][1]));
             i = 0;
         }
         let value = carPos[i++];
         x = value[0];
         y = value[1];
         let latlng = L.latLng(value[0], value[1]);
-        carMarker.setLatLng(latlng);
-        carMarker.setRotationAngle(90 - _data["state"]["course"]);
+        marker.setLatLng(latlng);
+        marker.setRotationAngle(90 - _data["state"]["course"]);
     }
 
     function start(data, seconds = 0) {

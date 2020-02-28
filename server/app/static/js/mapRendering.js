@@ -63,51 +63,52 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 carMarker.addTo(map);
+carMarker2.addTo(map);
 
-window.onload = function (e) {
-    let xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
-    xhr.open("POST", "https://lz4.overpass-api.de/api/interpreter");
-    var request =
-        `<osm-script output="json" output-config="" timeout="25">
-            <id-query type="area" ref="3600421866" into="searchArea"/>
-            <union>
-                <query type="node">
-                    <has-kv k="highway" v="traffic_signals"/>
-                    <area-query from="searchArea"/>
-                </query>
-            </union>
-            <print geometry="skeleton" ids="yes" mode="body" order="id"/>
-            <recurse type="down"/>
-            <print geometry="skeleton" ids="yes" mode="skeleton" order="quadtile"/>
-        </osm-script>`;
-    request = (new DOMParser).parseFromString(request, "text/xml");
-    xhr.send(request);
-    xhr.onload = () => {
-        if (xhr.status === 200) {
-            let data = xhr.response;
-            console.log("Server time: ", data.osm3s.timestamp_osm_base);
-            addMarkers(data);
-        }
-    }
-};
+// window.onload = function (e) {
+//     let xhr = new XMLHttpRequest();
+//     xhr.responseType = "json";
+//     xhr.open("POST", "https://lz4.overpass-api.de/api/interpreter");
+//     var request =
+//         `<osm-script output="json" output-config="" timeout="25">
+//             <id-query type="area" ref="3600421866" into="searchArea"/>
+//             <union>
+//                 <query type="node">
+//                     <has-kv k="highway" v="traffic_signals"/>
+//                     <area-query from="searchArea"/>
+//                 </query>
+//             </union>
+//             <print geometry="skeleton" ids="yes" mode="body" order="id"/>
+//             <recurse type="down"/>
+//             <print geometry="skeleton" ids="yes" mode="skeleton" order="quadtile"/>
+//         </osm-script>`;
+//     request = (new DOMParser).parseFromString(request, "text/xml");
+//     xhr.send(request);
+//     xhr.onload = () => {
+//         if (xhr.status === 200) {
+//             let data = xhr.response;
+//             console.log("Server time: ", data.osm3s.timestamp_osm_base);
+//             addMarkers(data);
+//         }
+//     }
+// };
 
-function addMarkers(data) {
-    let trafficLights = data.elements;
-
-    trafficLights.forEach(element => {
-        let state = Math.floor(Math.random() * 100);
-        let marker;
-        if (state % 2 === 0)
-            marker = L.marker([element.lat, element.lon], {icon: trafficGreenLight});
-        else
-            marker = L.marker([element.lat, element.lon], {icon: trafficRedLight});
-        marker.addTo(map).on('click', changeColor);
-        marker.bindPopup("<b>Traffic light</b><br>#" + marker.getLatLng().toString());
-        let counter = new Counter(marker, 6000);
-        counter.start();
-    });
-}
+// function addMarkers(data) {
+//     let trafficLights = data.elements;
+//
+//     trafficLights.forEach(element => {
+//         let state = Math.floor(Math.random() * 100);
+//         let marker;
+//         if (state % 2 === 0)
+//             marker = L.marker([element.lat, element.lon], {icon: trafficGreenLight});
+//         else
+//             marker = L.marker([element.lat, element.lon], {icon: trafficRedLight});
+//         marker.addTo(map).on('click', changeColor);
+//         marker.bindPopup("<b>Traffic light</b><br>#" + marker.getLatLng().toString());
+//         let counter = new Counter(marker, 6000);
+//         counter.start();
+//     });
+// }
 
 function changeColor(e) {
     marker = e.target.getIcon();

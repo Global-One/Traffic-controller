@@ -10,12 +10,12 @@ $("#stop").click(() => {
     });
 });
 
-function CarMovingSimulation() {
-    let m = new Move();
-    let updater;
-    let data;
+function CarMovingSimulation(carMarker) {
+    let _move;
+    let _updater;
+    let _data_count = 0;
 
-    let d = [];
+    let _data = [];
 
     function timeoutWithAcceleration(distance, acceleration, speed) {
         acceleration = Math.abs(acceleration);
@@ -24,13 +24,13 @@ function CarMovingSimulation() {
     }
 
     function nextData(i) {
-        if (i >= d.length - 1) {
-            m.stop();
+        if (i >= _data.length - 1) {
+            _move.stop();
             return;
         }
 
-        let state0 = d[i]["state"];
-        let state1 = d[i + 1]["state"];
+        let state0 = _data[i]["state"];
+        let state1 = _data[i + 1]["state"];
         let speed = kphToMs(state0["speed"]);
         let acceleration = state0["acceleration"];
 
@@ -39,31 +39,33 @@ function CarMovingSimulation() {
             timeoutWithAcceleration(distance, acceleration, speed) * 1000;
         console.log("Timeout: ", timeout);
 
-        updater = setTimeout(() => {
-            data = d[++i];
-            m.stop();
-            console.log("Data updated!");
-            m.start(data);
+        _updater = setTimeout(() => {
+            let data = _data[++i];
+            _move.stop();
+            console.log(++_data_count, "Data updated!");
+            _move.start(data);
             nextData(i);
         }, timeout);
     }
 
     function processData(data) {
-        d.push(data);
+        console.log("Data received!");
+        _data.push(data);
     }
 
     function start() {
+        _move = new Move(carMarker);
         console.log("START!");
-        clearInterval(updater);
-        let data = d[0];
-        m.start(data);
+        clearInterval(_updater);
+        let data = _data[0];
+        _move.start(data);
         nextData(0);
     }
 
     function stop() {
         console.log("STOP!");
-        clearInterval(updater);
-        m.stop();
+        clearInterval(_updater);
+        _move.stop();
     }
 
     this.start = start;
