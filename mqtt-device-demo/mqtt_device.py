@@ -2,7 +2,6 @@ import time
 import datetime
 import random
 import functools
-import numpy
 
 import ssl
 
@@ -17,20 +16,14 @@ from firebase_admin import db
 from json import loads, dumps
 from os import getenv
 
-from math import cos, radians, degrees, atan2
+import math
+
+from numpy.distutils.system_info import tmp
 
 initialize_app(credential=credentials.Certificate(loads(getenv("FIREBASE_CONFIG"))), options={'databaseURL': 'https://green-waves.firebaseio.com/'})
 
 
 def payload_builder(device_id):
-
-    def angle_between_coordinates(ll1, ll2):
-        lat1, lng1 = ll1[0], ll1[1]
-        lat2, lng2 = ll2[0], ll2[1]
-
-        dy = lat2 - lat1
-        dx = cos(radians(lat1)) * (lng2 - lng1)
-        return degrees(atan2(dy, dx))
 
     base = db.reference(f'devices/{device_id}')
 
@@ -38,20 +31,35 @@ def payload_builder(device_id):
 
     telemetry = []
 
+    speed = 80
+    step = 0.000009 * speed / 3.6
+
+    def calc_angle(node1, node2):
+        dy = node2['lat'] - node1['lat']
+        dx = math.cos(node1['lat'] * math.pi / 180) * (node2['lng'] - node1['lng'])
+        return math.atan2(dy, dx)
+
     route = []
 
-    def extend_route(node1, node2):
-        for lat, lng in ((lat, lng) for lat, lng in zip(
-                numpy.arange(node1['lat'], node2['lat'], 0.0001413),
-                numpy.arange(node1['lng'], node2['lng'], 0.0001413))
-                         ):
-            route.append({"lat": lat, "lng": lng})
-        return node2
+    def extend_route(start, end):
+        i = len(route)
+        route.append(start)
+        angle = calc_angle(start, end)
+        while (math.fabs(route[i]['lat'] - end['lat']) > math.fabs(step * math.sin(angle))) and\
+              (math.fabs(route[i]['lng'] - end['lng']) > math.fabs(step * math.cos(angle))):
+            route.append(
+                {
+                    "lat": route[i]['lat'] + step * math.sin(angle),
+                    "lng": route[i]['lng'] + step * math.cos(angle)
+                }
+            )
+            i += 1
+        return end
 
     # takes two neighbour nodes and creates additional nodes in-between
-    functools.reduce(extend_route, base_snapshot['routes'][base_snapshot['last_route_id']]['nodes'].values())
+    functools.reduce(extend_route, base_snapshot['routes'][base_snapshot['last_route_id']]['nodes'])
 
-    for node in route:
+    for i, node in enumerate(route):
         telemetry.append({
             "id": device_id,
             "msec": "TODO",
@@ -59,25 +67,21 @@ def payload_builder(device_id):
             "skin": "ambulance",
             "state": {
                 "acceleration": 0,
-                "course": angle_between_coordinates(
-                    (
-                        telemetry[-1]['state']['latitude'] if telemetry else 0,
-                        telemetry[-1]['state']['longitude'] if telemetry else 0
-                    ), (
-                        float(node['lat']),
-                        float(node['lng'])
-                    )
-                ),
+                "course": math.degrees(calc_angle(
+                    node, route[i + 1] if i + 1 < len(route) else {"lat": 0, "lng": 0}
+                )),
                 "gear": "TODO",
                 "latitude": float(node['lat']),
                 "longitude": float(node['lng']),
                 "rpm": "TODO",
-                "speed": 80
+                "speed": speed
             },
             "status": "Moving",
             "timestp": "TODO",
             "type": "Emergency"
         })
+
+    telemetry[-1]['state']['speed'] = 0
 
     return telemetry
 
