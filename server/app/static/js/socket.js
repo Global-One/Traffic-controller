@@ -4,8 +4,8 @@ $(document).ready(function () {
     // var socket = io(namespace);
     const socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
-    let simulation = new CarMovingSimulation(carMarker);
-    let simulation2 = new CarMovingSimulation(carMarker2);
+    // let simulation = new CarMovingSimulation(carMarker);
+    // let simulation2 = new CarMovingSimulation(carMarker2);
 
     // send test event to the server
     socket.on('connect', function () {
@@ -19,17 +19,18 @@ $(document).ready(function () {
     });
 
     let canStart = false;
-    let updater = new StartUpdating();
+    let updater/* = new StartUpdating()*/;
     socket.on('move_car', function (msg) {
         let data = msg.data;
         logEvent(msg["event_name"], JSON.stringify(data));
 
-        simulation.processData(data);
-        simulation2.processData(data);
+        // simulation.processData(data);
+        // simulation2.processData(data);
         canStart = true;
     });
 
     socket.on('start_simulation', () => {
+        updater = new StartUpdating();
         updater.start();
         console.log("Starting!..");
     });

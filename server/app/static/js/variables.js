@@ -8,6 +8,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 // show the scale bar on the lower left corner
 L.control.scale().addTo(map);
 
+firebase.initializeApp({databaseURL: "https://green-waves.firebaseio.com"});
+let devicesData = firebase.database().ref('devices');
+
 const trafficGreenLight = L.icon({
         iconUrl: 'img/green-light.png',
 
@@ -29,23 +32,23 @@ let carIcon = L.icon({
 });
 
 
-let carMarker = new L.Marker([50.4278, 30.5112],
-    {
-        icon: carIcon,
-        rotationAngle: 90,
-        rotationOrigin: "center center",
-        id: "car",
-        draggable: true
-    });
-
-let carMarker2 = new L.Marker([50.4278, 30.5125],
-    {
-        icon: carIcon,
-        rotationAngle: 90,
-        rotationOrigin: "center center",
-        id: "car",
-        draggable: true
-    });
+// let carMarker = new L.Marker([50.4278, 30.5112],
+//     {
+//         icon: carIcon,
+//         rotationAngle: 90,
+//         rotationOrigin: "center center",
+//         id: "car",
+//         draggable: true
+//     });
+//
+// let carMarker2 = new L.Marker([50.4278, 30.5125],
+//     {
+//         icon: carIcon,
+//         rotationAngle: 90,
+//         rotationOrigin: "center center",
+//         id: "car",
+//         draggable: true
+//     });
 
 // var lastPos;
 // carMarker.on('drag', function (event) {
@@ -63,4 +66,4 @@ let carMarker2 = new L.Marker([50.4278, 30.5125],
 //     }
 // });
 
-carMarker.bindPopup(L.popup().setContent("Some text"));
+// carMarker.bindPopup(L.popup().setContent("Some text"));

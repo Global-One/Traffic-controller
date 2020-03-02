@@ -53,7 +53,7 @@ $('#show_route').click(() => {
     let origins = $("#route_origins").val();
     let destinations = $('#route_destinations').val();
 
-    $.ajax(`/test?origins=${origins.replace(', ', ',')}&destinations=${
+    $.ajax(`/build_route?origins=${origins.replace(', ', ',')}&destinations=${
         destinations.replace(', ', ',')}`).done(
         (data) => {
             let route_data = data['nodes'];
@@ -79,7 +79,7 @@ $('#show_route').click(() => {
 
             show_route(route_nodes, data.duration, data.distance);
             console.log(routeLine);
-            show_route_traffic_signals(data['traffic_signals_on_route'])
+            show_route_traffic_signals(data['traffic_signals']);
         })
 });
 
@@ -95,7 +95,16 @@ var traffic_signals_on_route = {};
 function show_route_traffic_signals(traffic_signals_nodes) {
     for (let traffic_signal_id in traffic_signals_nodes) {
         let traffic_light = new L.Marker(traffic_signals_nodes[traffic_signal_id], {icon: trafficRedLight}).addTo(map);
-        traffic_signals_on_route[traffic_signal_id] = traffic_light;
-        traffic_light.on('click', changeColor);
+        traffic_signals_on_route[traffic_signals_nodes[traffic_signal_id].id] = traffic_light;
+        traffic_light['setEnabled'] = enableTrafficSignal;
+        traffic_light.addTo(map);
     }
+}
+
+function enableTrafficSignal(trafficSignalMarker) {
+    trafficSignalMarker.setIcon(trafficGreenLight);
+}
+
+function disableTrafficSignal(trafficSignalMarker) {
+    trafficSignalMarker.setIcon(trafficRedLight);
 }

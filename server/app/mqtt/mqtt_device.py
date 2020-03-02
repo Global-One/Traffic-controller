@@ -1,32 +1,34 @@
-import time
 import datetime
-import random
 import functools
-
+import math
+import random
 import ssl
+import time
+from json import loads, dumps
 
 import jwt
 import paho.mqtt.client as mqtt
-
-from firebase_admin import initialize_app
-
 from firebase_admin import credentials
 from firebase_admin import db
+from firebase_admin import initialize_app, delete_app
 
-from json import loads, dumps
-from os import getenv
+# from numpy.distutils.system_info import tmp
+# from server.app.db.db_initialize import firebase_app
 
-import math
-
-from numpy.distutils.system_info import tmp
-
-initialize_app(credential=credentials.Certificate(loads(getenv("FIREBASE_CONFIG"))), options={'databaseURL': 'https://green-waves.firebaseio.com/'})
+global should_backoff
+should_backoff = False
+global seconds
+seconds = 0
+global packages
+packages = 0
 
 
 def payload_builder(device_id):
-
-    base = db.reference(f'devices/{device_id}')
-
+    firebase_app = initialize_app(
+        credential=credentials.Certificate(loads(open(
+            r'C:\Users\Vladyslav Synytsyn\PycharmProjects\Traffic-controller\server\green-waves-firebase-adminsdk-7jdz2-fac3d2c4b6.json').read())),
+        options={'databaseURL': 'https://green-waves.firebaseio.com/'}, name="MQTT")
+    base = db.reference(f'devices/{device_id}', firebase_app)
     base_snapshot = dict(base.get())
 
     telemetry = []
@@ -45,8 +47,8 @@ def payload_builder(device_id):
         i = len(route)
         route.append(start)
         angle = calc_angle(start, end)
-        while (math.fabs(route[i]['lat'] - end['lat']) > math.fabs(step * math.sin(angle))) and\
-              (math.fabs(route[i]['lng'] - end['lng']) > math.fabs(step * math.cos(angle))):
+        while (math.fabs(route[i]['lat'] - end['lat']) > math.fabs(step * math.sin(angle))) and \
+                (math.fabs(route[i]['lng'] - end['lng']) > math.fabs(step * math.cos(angle))):
             route.append(
                 {
                     "lat": route[i]['lat'] + step * math.sin(angle),
@@ -83,15 +85,18 @@ def payload_builder(device_id):
 
     telemetry[-1]['state']['speed'] = 0
 
+    delete_app(firebase_app)
+
     return telemetry
 
 
 def create_jwt(project_id, private_key_file, algorithm):
+    # print("DIRECTOTIES:", listdir('server/app/mqtt'))
     with open(private_key_file, 'r') as f:
         return jwt.encode({
-                'iat': datetime.datetime.utcnow(),
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-                'aud': project_id
+            'iat': datetime.datetime.utcnow(),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+            'aud': project_id
         }, f.read(), algorithm=algorithm)
 
 
@@ -111,16 +116,16 @@ def get_client(
     )
 
     client.username_pw_set(
-            username='unused',
-            password=create_jwt(project_id, private_key_file, algorithm)
+        username='unused',
+        password=create_jwt(project_id, private_key_file, algorithm)
     )
 
     client.tls_set(ca_certs=ca_certs, tls_version=ssl.PROTOCOL_TLSv1_2)
 
     def on_connect(unused_client, unused_userdata, unused_flags, rc):
         print('on_connect:', mqtt.connack_string(rc))
-        global should_backoff
         global minimum_backoff_time
+        global should_backoff
         should_backoff = False
         minimum_backoff_time = 1
 
@@ -135,7 +140,7 @@ def get_client(
     client.on_connect = on_connect
     client.on_publish = lambda unused_client, unused_userdata, unused_mid: print('on_publish.')
     client.on_disconnect = on_disconnect
-    client.on_message = lambda unused_client, unused_userdata, message:\
+    client.on_message = lambda unused_client, unused_userdata, message: \
         print('Received message \'{}\' on topic \'{}\' with Qos {}.'.format(
             str(message.payload.decode('utf-8')), message.topic, str(message.qos)))
 
@@ -190,7 +195,7 @@ def send_data_from_bound_device(
     )
 
     attach_device(client, device_id, '')
-    time.sleep(3)
+    # time.sleep(3)
 
     gateway_state = 'Starting gateway at: {}.'.format(time.time())
     client.publish(gateway_topic, gateway_state, qos=1)
@@ -209,7 +214,9 @@ def send_data_from_bound_device(
             client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
         client.publish(device_topic, dumps(telemetry), qos=1)
-        time.sleep(3)
+        time.sleep(1)
+        global packages
+        packages += 1
 
         seconds_since_issue = (datetime.datetime.utcnow() - jwt_iat).seconds
         if seconds_since_issue > 60 * jwt_exp_mins:
@@ -229,17 +236,27 @@ def send_data_from_bound_device(
     detach_device(client, device_id)
 
 
-send_data_from_bound_device(
-    'green-waves',
-    'us-central1',
-    'emergency-vehicles-registry',
-    'emergency-vehicle-0',
-    'emergency-vehicles-gateway',
-    'rsa_private_gateway.pem',  # RS256_x509 key, RS256 doesn`t work
-    'RS256',  # used in JWT creation, works
-    'roots.pem',
-    'mqtt.googleapis.com',
-    8883,
-    20,
-    payload_builder("mqtt-001")
-)
+def send_data_from_device(device_id):
+    send_data_from_bound_device(
+        'green-waves',
+        'us-central1',
+        'emergency-vehicles-registry',
+        'emergency-vehicle-0',
+        'emergency-vehicles-gateway',
+        r'C:\Users\Vladyslav Synytsyn\PycharmProjects\Traffic-controller\server\app\mqtt\rsa_private_gateway.pem',
+        # RS256_x509 key, RS256 doesn`t work
+        'RS256',  # used in JWT creation, works
+        r'C:\Users\Vladyslav Synytsyn\PycharmProjects\Traffic-controller\server\app\mqtt\roots.pem',
+        'mqtt.googleapis.com',
+        8883,
+        20,
+        payload_builder(device_id)
+    )
+
+
+if __name__ == '__main__':
+    # print(listdir())
+    seconds = time.time()
+    send_data_from_device('mqtt-001')
+    print(time.time() - seconds)
+    print(packages)

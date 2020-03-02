@@ -1,6 +1,3 @@
-firebase.initializeApp({databaseURL: "https://green-waves.firebaseio.com"});
-let devicesData = firebase.database().ref('devices');
-
 async function getLastRouteId(deviceId, databaseSnapshot) {
     let id = await databaseSnapshot.child(deviceId).once('value').then(function (snapshot) {
         return snapshot.val().last_route_id;
@@ -18,12 +15,13 @@ async function getTelemetry(device_id, databaseSnapshot) {
 }
 
 async function getLightersOnCurrentRoute(device_id, databaseSnapshot) {
+    // console.log('lights', JSON.stringify(listOfLighters));
     let last_route_id = await getLastRouteId(device_id, databaseSnapshot);
-    let listOfLighters = await databaseSnapshot.child(device_id + '/routes/' + last_route_id + '/traffic_signals').once('value', function (snapshot) {
+    let telemetry = await databaseSnapshot.child(device_id + '/routes/' + last_route_id + '/traffic_signals').once('value').then(function (snapshot) {
         return snapshot.val();
     });
-    // console.log(JSON.stringify(listOfLighters));
-    return listOfLighters;
+    // console.log(JSON.stringify(telemetry));
+    return telemetry;
 }
 
 async function getAllDevices(databaseSnapshot) {
@@ -57,7 +55,7 @@ function createCarMarker(lat, lng) {
     let carIcon = L.icon({
         iconUrl: 'img/car.png',
         iconSize: [35, 35],
-        iconAnchor: [17.5, 17.5],
+        iconAnchor: [17.5, 0],
         popupAnchor: [0, 0]
     });
 
@@ -65,7 +63,7 @@ function createCarMarker(lat, lng) {
         {
             icon: carIcon,
             rotationAngle: 0,
-            rotationOrigin: "center center",
+            rotationOrigin: "top center",
         });
     marker.addTo(map);
     return marker;
@@ -80,51 +78,62 @@ function UpdateCarsData() {
             for (let i in car_ids) {
                 // console.log(1.5, i);
                 if (cars[car_ids[i]] === undefined) {
-                    cars[car_ids[i]] = {};
-                    let car = cars[car_ids[i]];
-                    console.log(2, car);
+                    // console.log(2, car);
                     getTelemetry(car_ids[i], devicesData).then(car_telemetry => {
                         if (car_telemetry) {
-                            // console.log(3, car_telemetry);
-                            car['last_telemetry_id'] = car_telemetry.length;
+                            cars[car_ids[i]] = {};
+                            let car = cars[car_ids[i]];
+                            console.log('Created car ' + car_ids[i]);
+                            car['last_telemetry_id'] = car_telemetry.length - 1;
                             // console.log(3.5, car_telemetry[0], car_telemetry[0].state);
                             car['marker'] = createCarMarker(car_telemetry[0].state.latitude, car_telemetry[0].state.longitude);
-                            let simulation = new CarMovingSimulation(car['marker']);
+                            // let simulation = new CarMovingSimulation(car['marker']);
+                            let simulation = new Move(car.marker);
                             car['simulation'] = simulation;
+                            car['isStarted'] = false;
                             // cars[i]['telemetry_count'] = 0;
                             for (let telemetry in car_telemetry) {
                                 // console.log(4, car_telemetry[telemetry]);
-                                simulation.processData(car_telemetry[telemetry]);
+                                // simulation.processData(car_telemetry[telemetry]);
+                                simulation.start(car_telemetry[telemetry]);
+                                // cars[car_ids[i]].marker.setLatLng([car_telemetry[j].state.latitude, car_telemetry[j].state.longitude])
+                                // cars[car_ids[i]].marker.setRotationAngle(90 - car_telemetry[j].state.course)
+
                             }
                         }
                     });
                 } else {
                     // console.log(5);
                     getTelemetry(car_ids[i], devicesData).then(car_telemetry => {
-                        if (car_telemetry)
-                            for (let i = cars[car_ids[i]].last_telemetry_id; i < car_telemetry.length; ++i) {
-                                console.log(5, car_telemetry[i]);
-                                cars[car_ids[i]].simulation.processData(car_telemetry[i])
+                            if (car_telemetry) {
+                                for (let j = cars[car_ids[i]].last_telemetry_id + 1; j < car_telemetry.length; ++j) {
+                                    console.log(j);
+                                    // cars[car_ids[i]].simulation.processData(car_telemetry[j])
+                                    cars[car_ids[i]].simulation.start(car_telemetry[j])
+                                    // cars[car_ids[i]].marker.setLatLng([car_telemetry[j].state.latitude, car_telemetry[j].state.longitude])
+                                    // cars[car_ids[i]].marker.setRotationAngle(90 - car_telemetry[j].state.course)
+                                }
+                                cars[car_ids[i]].last_telemetry_id = car_telemetry.length - 1;
                             }
-                    });
+                        }
+                    );
 
                 }
             }
-        });
+        })
+        ;
     }
 
     function updateTrafficSignals() {
         for (let car_id in cars) {
             // console.log(car_id);
-            if (cars[car_id].last_telemetry_id > 0 && !cars[car_id]['isStarted']) {
-                cars[car_id].simulation.start();
-                cars[car_id]['isStarted'] = true;
-            }
             getLightersOnCurrentRoute(car_id, devicesData).then(traffic_signals => {
+                // console.log(traffic_signals);
                 for (let i in traffic_signals) {
-                    traffic_signal_id = traffic_signals[i].id;
+                    let traffic_signal_id = traffic_signals[i].id;
+                    // console.log(traffic_signal_id);
                     if (traffic_signals[i].state) {
-                        traffic_signals_on_route[traffic_signal_id].click()
+                        traffic_signals_on_route[traffic_signal_id].setIcon(trafficGreenLight);
                     }
                 }
             })
@@ -136,10 +145,13 @@ function UpdateCarsData() {
         timer = window.setInterval(() => {
             update();
             updateTrafficSignals();
-        }, 2000);
+        }, 200);
     };
     this.stop = () => {
-        clearInterval(timer)
+        clearInterval(timer);
+        cars.foreach(
+            car => car.simulation.stop()
+        )
     };
 }
 
@@ -147,7 +159,7 @@ function StartUpdating() {
     let _updater = new UpdateCarsData();
 
     this.start = () => {
-        window.setInterval(checkForStart, 1000);
+        window.setInterval(checkForStart, 200);
         _updater.start();
     };
     this.stop = () => {
@@ -159,8 +171,8 @@ function StartUpdating() {
         // console.log(cars);
         for (let car_id in cars) {
             // console.log(car_id);
-            if (cars[car_id].last_telemetry_id > 0 && !cars[car_id]['isStarted']) {
-                cars[car_id].simulation.start();
+            if (cars[car_id].last_telemetry_id > 1 && !cars[car_id]['isStarted']) {
+                // cars[car_id].simulation.start();
                 cars[car_id]['isStarted'] = true;
             }
         }
