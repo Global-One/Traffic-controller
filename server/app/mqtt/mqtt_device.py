@@ -26,7 +26,7 @@ packages = 0
 def payload_builder(device_id):
     firebase_app = initialize_app(
         credential=credentials.Certificate(loads(open(
-            r'C:\Users\Vladyslav Synytsyn\PycharmProjects\Traffic-controller\server\green-waves-firebase-adminsdk-7jdz2-fac3d2c4b6.json').read())),
+            r'green-waves-firebase-adminsdk.json').read())),
         options={'databaseURL': 'https://green-waves.firebaseio.com/'}, name="MQTT")
     base = db.reference(f'devices/{device_id}', firebase_app)
     base_snapshot = dict(base.get())
@@ -243,10 +243,10 @@ def send_data_from_device(device_id):
         'emergency-vehicles-registry',
         'emergency-vehicle-0',
         'emergency-vehicles-gateway',
-        r'C:\Users\Vladyslav Synytsyn\PycharmProjects\Traffic-controller\server\app\mqtt\rsa_private_gateway.pem',
+        'rsa_private_gateway.pem',
         # RS256_x509 key, RS256 doesn`t work
         'RS256',  # used in JWT creation, works
-        r'C:\Users\Vladyslav Synytsyn\PycharmProjects\Traffic-controller\server\app\mqtt\roots.pem',
+        'roots.pem',
         'mqtt.googleapis.com',
         8883,
         20,
