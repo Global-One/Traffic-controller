@@ -93,9 +93,53 @@ def test_disconnect():
 
 @app.route('/build_route')
 def build_route():
-    # КОСТЫЛЬ, нужно как-то передавать айди девайса
-    return server.app.build_route.build_route(request, 'mqtt-001')
+    """
+    Function can be called with ?origins=lat,lng&destinations=lat,lng request
+    """
+    lat1, lng1, lat2, lng2 = [float(y) for x in request.args for y in request.args[x].split(',')]
+    api_request_url = f'http://router.project-osrm.org/route/v1/driving/{lng1},{lat1};{lng2},{lat2}' \
+                      f'?alternatives=false&annotations=nodes'
+    response = json.loads(get(api_request_url).content.decode())
+    while response.get('message') == "Too Many Requests":
+        print('Pending...')
+        response = json.loads(get(api_request_url).content.decode())
+        sleep(0.2)
 
+    if response['code'] == 'NoRoute':
+        return response
+
+    nodes_dict = {}
+    traffic_signals_dict = {}
+    data = response['routes'][0]['legs'][0]
+    all_nodes_data = api.NodesGet(data['annotation']['nodes'])
+    for node_date in all_nodes_data.values():
+        if 'highway' in node_date.get('tag') and node_date['tag']['highway'] == 'traffic_signals':
+            traffic_signals_dict[node_date['id']] = {'id': node_date['id'], 'lat': node_date['lat'],
+                                                     'lng': node_date['lon'],
+                                                     'state': False}
+        else:
+            nodes_dict[node_date['id']] = {'id': node_date['id'], 'lat': node_date['lat'], 'lng': node_date['lon']}
+
+    nodes_list = []
+    traffic_signals_list = []
+    for node_id in data['annotation']['nodes']:
+        if nodes_dict.get(node_id):
+            nodes_list.append(nodes_dict[node_id])
+        else:
+            nodes_list.append(traffic_signals_dict[node_id])
+    for traffic_signal_id in data['annotation']['nodes']:
+        if traffic_signals_dict.get(traffic_signal_id):
+            traffic_signals_list.append(traffic_signals_dict[traffic_signal_id])
+
+    result_data = {'nodes': nodes_list, "traffic_signals": traffic_signals_list, 'duration': data['duration'],
+                   'distance': data['distance']}
+
+    return result_data
+
+    # КОСТЫЛЬ, нужно как-то передавать айди девайса
+    # return server.app.build_route.build_route(request, 'mqtt-001')
+
+server.app.route_to_db.set_env("server/green-waves-firebase-adminsdk-7jdz2-fac3d2c4b6.json")
 
 @app.route('/send_mqtt_data')
 def send_mqtt_data():
@@ -106,7 +150,6 @@ def send_mqtt_data():
     #         thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
     #     thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
     return ''
-
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=getenv('PORT', 5000))
