@@ -1,10 +1,10 @@
 FROM python:latest
 WORKDIR /usr/src/app
 
-COPY server/app/requirements.txt ./
+COPY app/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY .. .
 
 EXPOSE 80
 ENV PYTHONPATH ${PYTHONPATH}:/usr/src/app
