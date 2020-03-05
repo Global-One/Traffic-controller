@@ -6,7 +6,7 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 from requests import get
 
-import server.app.route_to_db
+import server
 from server.app.build_route import build_route
 from server.app.mqtt.mqtt_device import send_data_from_device
 
@@ -93,12 +93,8 @@ def test_disconnect():
 
 @app.route('/build_route')
 def build_route():
-    return server.app.build_route.build_route(request)
-
-
-@app.route('/to_firebase', methods=["POST"])
-def add_route_to_db():
-    return server.app.route_to_db.add_route_to_db(request)
+    # КОСТЫЛЬ, нужно как-то передавать айди девайса
+    return server.app.build_route.build_route(request, 'mqtt-001')
 
 
 @app.route('/send_mqtt_data')
@@ -111,8 +107,6 @@ def send_mqtt_data():
     #     thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
     return ''
 
-
-server.app.route_to_db.set_env("server/green-waves-firebase-adminsdk-7jdz2-fac3d2c4b6.json")
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=getenv('PORT', 5000))
