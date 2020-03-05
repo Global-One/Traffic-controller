@@ -41,16 +41,17 @@ function Move(marker) {
         let value = carPos[i++];
         x = value[0];
         y = value[1];
-        let latlng = L.latLng(value[0], value[1]);
+        let latlng = L.latLng(x, y);
         marker.setLatLng(latlng);
         marker.setRotationAngle(90 - _data["state"]["course"]);
     }
 
     function start(data, seconds = 0) {
+        stop();
         _data = data;
 
         i = 0;
-        fps = 60;
+        fps = 30;
         carPos = calculateCoords(data, fps);
         loop = 0;
         mLoops = seconds - 1;

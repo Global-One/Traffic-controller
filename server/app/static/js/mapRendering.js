@@ -62,8 +62,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-carMarker.addTo(map);
-carMarker2.addTo(map);
+// carMarker.addTo(map);
+// carMarker2.addTo(map);
 
 // window.onload = function (e) {
 //     let xhr = new XMLHttpRequest();
@@ -109,14 +109,6 @@ carMarker2.addTo(map);
 //         counter.start();
 //     });
 // }
-
-function changeColor(e) {
-    marker = e.target.getIcon();
-    if (marker.options.iconUrl === trafficGreenLight.options.iconUrl)
-        e.target.setIcon(trafficRedLight);
-    else
-        e.target.setIcon(trafficGreenLight);
-}
 
 function Counter(marker, delay) {
     var interval;

@@ -5,6 +5,9 @@ import firebase_admin
 from firebase_admin import credentials, db
 
 
+# from server.app.db.db_initialize import firebase_app
+
+
 def add_route_to_db(request):
     """
     Function to add route which was built for some device to Firebase Database
@@ -37,16 +40,18 @@ def add_route_to_db(request):
     cred = credentials.Certificate(json.loads(getenv("FIREBASE_CRED")))
     firebase_app = firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://green-waves.firebaseio.com/'
-    })
-    # print(type(route_json), route_json)
+    }, name="ROUTE")
+    print(type(route_json), route_json)
     if route_json and route_json.get('device_id') and route_json.get('nodes') and route_json.get(
             'traffic_signals') is not None:
         ref = db.reference('devices', firebase_app)
         device_id = route_json['device_id']
         device = ref.child(device_id)
-        last_route_id = device.get('last_route_id')[0].get('last_route_id', -1) + 1
+        last_route_id = device.get('last_route_id')[0].get('last_route_id', -1) + 1 if device.get('last_route_id')[
+            0] else 0
         print('id', last_route_id)
-        routes = device.get('routes')
+        device.child('last_route_id').set(last_route_id)
+        # routes = device.get('routes')
         route = device.child('routes').child(str(last_route_id))
 
         nodes = route.child('nodes')
@@ -63,7 +68,6 @@ def add_route_to_db(request):
 
         route.child('duration').set(route_json.get('duration', ""))
         route.child('distance').set(route_json.get('distance', ""))
-        device.child('last_route_id').set(last_route_id)
 
         firebase_admin.delete_app(firebase_app)
         return f'Updated route for {device_id}', 200
@@ -77,23 +81,3 @@ def add_route_to_db(request):
                 'traffic_signals') else '')
         print(error)
         return error, 400
-
-
-##########################################################
-def set_env(path_to_json_file: str):
-    """
-    Function to test code above in the local machine.
-    Writes needed values to environmental variables.
-    :param path_to_json_file: file with credentials in json
-    """
-    json_file = json.loads(open(path_to_json_file).read())
-    # for key in json_file:
-    #     environ[key] = json_file[key]
-    environ["FIREBASE_CRED"] = open(path_to_json_file).read()
-
-
-##########################################################
-
-
-if __name__ == '__main__':
-    set_env("vibrant-vector-260112-firebase-adminsdk-jctte-87328d93d5.json")

@@ -6,11 +6,9 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 from requests import get
 
-import server.app.route_to_db
+import server
 from server.app.build_route import build_route
-
-# import firebase_admin
-# from firebase_admin import credentials, db
+from server.app.mqtt.mqtt_device import send_data_from_device
 
 app = Flask(__name__, static_folder='static/', template_folder="templates/", static_url_path="")
 # TODO: secret key
@@ -23,16 +21,11 @@ thread = None
 thread_lock = Lock()
 
 
-def background_thread():
+def background_thread(device_id):
     """Example of how to send server generated events to clients."""
     global thread
-    print("File reading...")
-    with open("server/app/route.json") as f:
-        data = json.loads(f.read())
-        for state in data:
-            print(state)
-            socketio.emit('move_car', {"event_name": "Change state", "data": state}, namespace='/test')
-            socketio.sleep(0.5)
+    print(device_id)
+    send_data_from_device(device_id)
     thread = None
 
 
@@ -98,7 +91,7 @@ def test_disconnect():
     print('Client disconnected')
 
 
-@app.route('/test')
+@app.route('/build_route')
 def build_route():
     """
     Function can be called with ?origins=lat,lng&destinations=lat,lng request
@@ -143,12 +136,20 @@ def build_route():
 
     return result_data
 
-
-@app.route('/to_firebase', methods=["POST"])
-def add_route_to_db():
-    return server.app.route_to_db.add_route_to_db(request)
+    # КОСТЫЛЬ, нужно как-то передавать айди девайса
+    # return server.app.build_route.build_route(request, 'mqtt-001')
 
 server.app.route_to_db.set_env("server/green-waves-firebase-adminsdk-7jdz2-fac3d2c4b6.json")
+
+@app.route('/send_mqtt_data')
+def send_mqtt_data():
+    send_data_from_device(request.args.get('device_id'))
+    # global thread
+    # with thread_lock:
+    #     if thread is None:
+    #         thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
+    #     thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
+    return ''
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=getenv('PORT', 5000))

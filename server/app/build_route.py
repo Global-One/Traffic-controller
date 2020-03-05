@@ -6,9 +6,9 @@ import requests
 from requests import get
 
 
-def build_route(request):
+def build_route(request, device_id):
     lat1, lng1, lat2, lng2 = [float(y) for x in request.args for y in request.args[x].split(',')]
-    print(lat1, lat2)
+
     api_request_url = f'http://router.project-osrm.org/route/v1/driving/{lng1},{lat1};{lng2},{lat2}' \
                       f'?alternatives=false&annotations=nodes'
     print(api_request_url)
@@ -60,7 +60,9 @@ def build_route(request):
             traffic_signals_list.append(traffic_signals_dict[traffic_signal_id])
 
     result_data = {'nodes': nodes_list, "traffic_signals": traffic_signals_list, 'duration': data['duration'],
-                   'distance': data['distance']}
+                   'distance': data['distance'], "device_id": device_id}
+
+    requests.post("https://us-central1-green-waves.cloudfunctions.net/route_to_firebase", json=result_data)
 
     return result_data
 
