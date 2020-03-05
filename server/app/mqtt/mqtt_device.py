@@ -42,19 +42,22 @@ def payload_builder(device_id):
         return math.atan2(dy, dx)
 
     route = []
+    angles = []
 
     def extend_route(start, end):
         i = len(route)
-        route.append(start)
         angle = calc_angle(start, end)
+        route.append(start)
+        angles.append(math.degrees(angle))
         while (math.fabs(route[i]['lat'] - end['lat']) > math.fabs(step * math.sin(angle))) and \
                 (math.fabs(route[i]['lng'] - end['lng']) > math.fabs(step * math.cos(angle))):
             route.append(
                 {
                     "lat": route[i]['lat'] + step * math.sin(angle),
-                    "lng": route[i]['lng'] + step * math.cos(angle)
+                    "lng": route[i]['lng'] + step * math.cos(angle),
                 }
             )
+            angles.append(math.degrees(angle))
             i += 1
         return end
 
@@ -69,9 +72,7 @@ def payload_builder(device_id):
             "skin": "ambulance",
             "state": {
                 "acceleration": 0,
-                "course": math.degrees(calc_angle(
-                    node, route[i + 1] if i + 1 < len(route) else {"lat": 0, "lng": 0}
-                )),
+                "course": angles[i] if i < len(route)-1 else angles[len(angles)-1],
                 "gear": "TODO",
                 "latitude": float(node['lat']),
                 "longitude": float(node['lng']),
@@ -243,10 +244,10 @@ def send_data_from_device(device_id):
         'emergency-vehicles-registry',
         'emergency-vehicle-0',
         'emergency-vehicles-gateway',
-        'rsa_private_gateway.pem',
+        r'server/app/mqtt/rsa_private.pem',
         # RS256_x509 key, RS256 doesn`t work
         'RS256',  # used in JWT creation, works
-        'roots.pem',
+        r'server/app/mqtt/roots.pem',
         'mqtt.googleapis.com',
         8883,
         20,
