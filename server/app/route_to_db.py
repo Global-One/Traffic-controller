@@ -8,7 +8,7 @@ from firebase_admin import credentials, db
 def add_route_to_db(request):
     """
     Function to add route which was built for some device to Firebase Database
-    :param r: Flask request that contains json with route info:
+    :param request: Flask request that contains json with route info:
     {
         "device_id": int
         "nodes": [
@@ -34,50 +34,49 @@ def add_route_to_db(request):
     :return: str with json wrote to db or 'Bad request'
     """
     route_json = request.get_json()
-
-    json_cred = {
-        "type": getenv('type'),
-        "project_id": getenv('project_id'),
-        "private_key_id": getenv('private_key_id'),
-        "private_key": getenv('private_key').replace('\\n', '\n'),
-        "client_email": getenv('client_email'),
-        "client_id": getenv('client_id'),
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": getenv('client_x509_cert_url')
-    }
-    cred = credentials.Certificate(json_cred)
+    cred = credentials.Certificate(json.loads(getenv("FIREBASE_CRED")))
     firebase_app = firebase_admin.initialize_app(cred, options={
-        'databaseURL': 'https://vibrant-vector-260112.firebaseio.com/'
+        'databaseURL': 'https://green-waves.firebaseio.com/'
     })
-    if route_json and route_json.get('device_id') and route_json.get('nodes') and route_json.get('traffic_signals'):
+    # print(type(route_json), route_json)
+    if route_json and route_json.get('device_id') and route_json.get('nodes') and route_json.get(
+            'traffic_signals') is not None:
         ref = db.reference('devices', firebase_app)
         device_id = route_json['device_id']
         device = ref.child(device_id)
+        last_route_id = device.get('last_route_id')[0].get('last_route_id', -1) + 1
+        print('id', last_route_id)
         routes = device.get('routes')
-        if routes[0]:
-            route = device.child('routes').child(str(len(routes[0]['routes'])))
-        else:
-            route = device.child('routes').child('0')
-        del routes
+        route = device.child('routes').child(str(last_route_id))
 
         nodes = route.child('nodes')
+        i = 0
         for node in route_json['nodes']:
-            nodes.child(str(node['id'])).set(node)
+            nodes.child(str(i)).set(node)
+            i += 1
 
         traffic_signals = route.child('traffic_signals')
+        i = 0
         for traffic_signal in route_json['traffic_signals']:
-            traffic_signals.child(str(traffic_signal['id'])).set(traffic_signal)
+            traffic_signals.child(str(i)).set(traffic_signal)
+            i += 1
 
-        route.child('duration').set(route_json['duration'])
-        route.child('distance').set(route_json['distance'])
+        route.child('duration').set(route_json.get('duration', ""))
+        route.child('distance').set(route_json.get('distance', ""))
+        device.child('last_route_id').set(last_route_id)
 
         firebase_admin.delete_app(firebase_app)
         return f'Updated route for {device_id}', 200
     else:
         firebase_admin.delete_app(firebase_app)
-        return 'Bad request', 400
+        error = 'Bad request: %s%s%s%s not presented' % (
+            'no data' if not route_json else '',
+            'no device id' if not route_json and not route_json.get('device_id') else '',
+            'no nodes' if not route_json and not route_json.get('nodes') else '',
+            'no traffic signals' if not route_json and not route_json(
+                'traffic_signals') else '')
+        print(error)
+        return error, 400
 
 
 ##########################################################
@@ -88,8 +87,9 @@ def set_env(path_to_json_file: str):
     :param path_to_json_file: file with credentials in json
     """
     json_file = json.loads(open(path_to_json_file).read())
-    for key in json_file:
-        environ[key] = json_file[key]
+    # for key in json_file:
+    #     environ[key] = json_file[key]
+    environ["FIREBASE_CRED"] = open(path_to_json_file).read()
 
 
 ##########################################################

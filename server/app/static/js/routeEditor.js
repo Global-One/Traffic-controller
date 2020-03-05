@@ -76,26 +76,26 @@ function removePoint(e) {
     $("#" + e.id).remove();
 }
 
+function radToDeg(x) {
+    return x * (180 / Math.PI);
+}
+
+function degToRad(deg) {
+    return deg * (Math.PI / 180);
+}
+
+function angleBetweenCoords(ll1, ll2) {
+    let lat1 = ll1[0],
+        lng1 = ll1[1],
+        lat2 = ll2[0],
+        lng2 = ll2[1];
+    let
+        dy = lat2 - lat1;
+    let dx = Math.cos(degToRad(lat1)) * (lng2 - lng1);
+    return radToDeg(Math.atan2(dy, dx));
+}
+
 $("#export_json").click(function exportJSON() {
-
-    function radToDeg(x) {
-        return x * (180 / Math.PI);
-    }
-
-    function degToRad(deg) {
-        return deg * (Math.PI / 180);
-    }
-
-    function angleBetweenCoords(ll1, ll2) {
-        let lat1 = ll1[0],
-            lng1 = ll1[1],
-            lat2 = ll2[0],
-            lng2 = ll2[1];
-        let
-            dy = lat2 - lat1;
-        let dx = Math.cos(degToRad(lat1)) * (lng2 - lng1);
-        return radToDeg(Math.atan2(dy, dx));
-    }
 
     function acceleration(index) {
         if (index >= points.length - 1)

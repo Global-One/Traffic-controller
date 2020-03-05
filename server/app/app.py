@@ -1,14 +1,16 @@
 import json
 from os import getenv
 from threading import Lock
-from time import sleep
 
-import osmapi as osm
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 from requests import get
 
-api = osm.OsmApi()
+import server.app.route_to_db
+from server.app.build_route import build_route
+
+# import firebase_admin
+# from firebase_admin import credentials, db
 
 app = Flask(__name__, static_folder='static/', template_folder="templates/", static_url_path="")
 # TODO: secret key
@@ -86,8 +88,8 @@ def update_position():
 @socketio.on('connect', namespace='/test')
 def test_connect():
     global thread
-    with thread_lock:
-        thread = socketio.start_background_task(background_thread)
+    # with thread_lock:
+    #     thread = socketio.start_background_task(background_thread)
     print("Connected!!")
 
 
@@ -141,6 +143,12 @@ def build_route():
 
     return result_data
 
+
+@app.route('/to_firebase', methods=["POST"])
+def add_route_to_db():
+    return server.app.route_to_db.add_route_to_db(request)
+
+server.app.route_to_db.set_env("server/green-waves-firebase-adminsdk-7jdz2-fac3d2c4b6.json")
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=getenv('PORT', 5000))

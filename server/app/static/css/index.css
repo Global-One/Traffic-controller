@@ -3,13 +3,24 @@ body {
     margin: 0;
 }
 
-html, body, #map {
-    height: 100vh;
-    /*width: 100vh;*/
+.navbar {
+    height: 3.5rem;
+    background-color: #01060bcc;
+}
+
+.navbar-brand {
+    color: #42a75d !important;
+    text-shadow: #42a75d9e 0px 0px 15px;
 }
 
 #map-container {
-    padding-right: 0;
+    /*padding-right: 0;*/
+    padding: 0.5rem;
+}
+
+#map {
+    height: calc(100vh - (3.5rem + 0.5rem * 2));
+    /*width: 100vh;*/
 }
 
 #route_builder {
@@ -54,6 +65,28 @@ input::-webkit-inner-spin-button {
     background: #fdfdfd;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     z-index: 10;
+}
+
+#log-cards {
+    max-height: calc(90vh - 7.9rem);
+}
+
+#log-cards .card-body {
+    border-bottom: 1px solid #00000016;
+}
+
+#log a {
+    font-size: 1.25rem;
+}
+
+#log .btn {
+    padding: 0;
+    border: none;
+}
+
+#log .btn-lg {
+    padding: 0;
+    border: none;
 }
 
 #startDiv {
@@ -109,6 +142,10 @@ div#arrow {
     border-color: orange;
     transform: scale(.8);
 
+}
+
+.card-text {
+    white-space: pre-wrap;
 }
 
 /* Center the loader */

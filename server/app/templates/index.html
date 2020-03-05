@@ -24,33 +24,41 @@
               href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
+        <!-- Firebase -->
+        <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase.js"></script>
+
         <!-- for sockets -->
         <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
                 integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
 
     </head>
 
-    <body>
+    <body class="bg-light">
         <div id="loading">
             <div id="loader"></div>
             <div id="loader_background"></div>
         </div>
 
+        <nav class="navbar navbar-expand-lg navbar-light justify-content-center">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Green Waves</a>
+        </nav>
+
         <div class="container-fluid">
             <div class="row">
-                <div id="map-container" class="col col-md-9">
-                    <div id="map"></div>
-                    <div id="route_builder" class="position-absolute mt-3 mr-3 p-2">
-                        <div>
+                <div id="map-container" class="col-12 col-lg-9 pr-0">
+                    <div id="map" class="shadow mr-5 mr-lg-0"></div>
+                    <div id="route_builder"
+                         class="position-absolute mt-2 mr-5 p-1 mt-lg-3 mr-lg-3 p-lg-2 shadow rounded">
+                        <div class="row justify-content-end m-0 p-lg-1 m-lg-1">
                             <img id="marker_origin" draggable="true"
                                  src="{{ url_for('static', filename='img/marker-green.png') }}"
-                                 class="pr-0 pl-1 py-1 mr-0 my-1 ml-1">
-                            <input placeholder="From" id="route_origins" class="p-1 m-1" type="text">
+                                 class="p-1 mr-2 mt-1">
+                            <input placeholder="From" id="route_origins" class="col p-1 m-1" type="text">
                         </div>
-                        <div>
+                        <div class="row justify-content-end m-0 p-lg-1 m-lg-1">
                             <img id="marker_destination" src="{{ url_for('static', filename='img/marker-red.png') }}"
-                                 class="pr-0 pl-1 py-1 mr-0 my-1 ml-1">
-                            <input placeholder="To" id="route_destinations" class="p-1 m-1 mt-0" type="text"
+                                 class="p-1 mr-2 mt-1">
+                            <input placeholder="To" id="route_destinations" class=" col p-1 m-1 mt-0" type="text"
                                    step=0.000000000001>
                         </div>
                         <div>
@@ -63,31 +71,30 @@
                     </div>
                 </div>
 
-                <div id="control" class="col col-md-3 overflow-auto pl-3">
-                    <div>
-                        <br>
-                        <div id="buttons" class="row text-center justify-content-center position-sticky pl-2 py-3">
+                <div id="control" class="col-12 col-lg-3 overflow-auto pl-0 pr-0 p-lg-0">
+                    <div class="bg-white mr-5 m-2 ml-lg-2 m-lg-2 p-2 p-lg-1 shadow">
+                        <div id="buttons"
+                             class="row text-center justify-content-center position-sticky p-2 mx-0 border-bottom">
                             <div class="col-md-auto">
-                                <button id="start" type="button" class="btn btn-success m-1">Start</button>
-                                <button id="stop" type="button" class="btn btn-danger m-1">Stop</button>
-                                <a href="{{ url_for('route_editor') }}"
-                                   type="button" class="btn btn-outline-primary m-1">Build route</a>
+                                <button id="start" type="button" class="btn btn-outline-success m-1">Start</button>
+                                <button id="stop" type="button" class="btn btn-outline-danger m-1">Stop</button>
+                                {#                                <a href="{{ url_for('route_editor') }}"#}
+                                {#                                   type="button" class="btn btn-outline-primary m-1">Build route</a>#}
                             </div>
                         </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col mt-3">
-                                <h3>Log: </h3>
-                                <hr>
+                        <div id="log" class="row pt-3 p-2 mx-0 border-bottom">
+                            <div class="col pl-0">
+                                <a class="btn btn-link" data-toggle="collapse" aria-expanded="true"
+                                   href="#logCollapse" role="button">Log:</a>
                             </div>
                         </div>
-                        <div class="row">
-                            <div id="log-cards" class="col">
+                        <div class="row pt-2 m-0 collapse show" id="logCollapse">
+                            <div id="log-cards" class="overflow-auto col p-0">
 
                             </div>
                         </div>
                     </div>
-                    <div id="arrow"></div>
+                    {#                    <div id="arrow"></div>#}
                 </div>
             </div>
         </div>
@@ -112,6 +119,7 @@
         <script src="{{ url_for('static', filename='js/carMoving.js') }}" type="text/javascript"></script>
         <script src="{{ url_for('static', filename='js/carMovingSimulation.js') }}" type="text/javascript"></script>
         <script src="{{ url_for('static', filename='js/routeRender.js') }}" type="text/javascript"></script>
+        <script src="{{ url_for('static', filename='js/carsRendering.js') }}" type="text/javascript"></script>
         <script src="{{ url_for('static', filename='js/socket.js') }}" type="text/javascript"></script>
 
     </body>
