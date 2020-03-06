@@ -1,4 +1,5 @@
 import json
+from os import environ
 from time import sleep
 
 import osmapi as osm
@@ -73,3 +74,14 @@ def my_own_request(nodes_list):
     print(url)
     response = requests.get(url).content.decode()
     print(response)
+
+def set_env(path_to_json_file: str):
+    """
+    Function to test code above in the local machine.
+    Writes needed values to environmental variables.
+    :param path_to_json_file: file with credentials in json
+    """
+    json_file = json.loads(open(path_to_json_file).read())
+    # for key in json_file:
+    #     environ[key] = json_file[key]
+    environ["FIREBASE_CRED"] = open(path_to_json_file).read()

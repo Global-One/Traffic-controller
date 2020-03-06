@@ -2,9 +2,12 @@ import json
 from os import getenv
 from threading import Lock
 
+import requests
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 from requests import get
+import osmapi
+from time import sleep
 
 import server
 from server.app.build_route import build_route
@@ -90,6 +93,15 @@ def test_connect():
 def test_disconnect():
     print('Client disconnected')
 
+@app.route('/to_firebase', methods=["POST"])
+def send_route_to_firebase():
+    url = 'https://us-central1-green-waves.cloudfunctions.net/route_to_firebase'
+    payload = request.get_json()
+    headers = {'content-type': 'application/json'}
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
+    print(payload)
+    print(response)
+    return json.dumps({'success': True}), 200
 
 @app.route('/build_route')
 def build_route():
@@ -108,6 +120,7 @@ def build_route():
     if response['code'] == 'NoRoute':
         return response
 
+    api = osmapi.OsmApi()
     nodes_dict = {}
     traffic_signals_dict = {}
     data = response['routes'][0]['legs'][0]
@@ -139,7 +152,7 @@ def build_route():
     # КОСТЫЛЬ, нужно как-то передавать айди девайса
     # return server.app.build_route.build_route(request, 'mqtt-001')
 
-server.app.route_to_db.set_env("server/green-waves-firebase-adminsdk-7jdz2-fac3d2c4b6.json")
+server.app.build_route.set_env("server/green-waves-firebase-adminsdk.json")
 
 @app.route('/send_mqtt_data')
 def send_mqtt_data():
