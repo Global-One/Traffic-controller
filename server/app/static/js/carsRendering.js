@@ -70,7 +70,6 @@ function createCarMarker(lat, lng) {
 }
 
 var cars = {};
-
 function UpdateCarsData() {
     function update() {
         getAllDevices(devicesData).then(car_ids => {
@@ -145,7 +144,7 @@ function UpdateCarsData() {
         timer = window.setInterval(() => {
             update();
             updateTrafficSignals();
-        }, 200);
+        }, 900);
     };
     this.stop = () => {
         clearInterval(timer);
@@ -159,7 +158,7 @@ function StartUpdating() {
     let _updater = new UpdateCarsData();
 
     this.start = () => {
-        window.setInterval(checkForStart, 200);
+        window.setInterval(checkForStart, 900);
         _updater.start();
     };
     this.stop = () => {
@@ -168,7 +167,7 @@ function StartUpdating() {
     };
 
     function checkForStart() {
-        // console.log(cars);
+        console.log(cars);
         for (let car_id in cars) {
             // console.log(car_id);
             if (cars[car_id].last_telemetry_id > 1 && !cars[car_id]['isStarted']) {
@@ -178,3 +177,4 @@ function StartUpdating() {
         }
     }
 }
+
