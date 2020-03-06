@@ -152,7 +152,7 @@ def build_route():
     # КОСТЫЛЬ, нужно как-то передавать айди девайса
     # return server.app.build_route.build_route(request, 'mqtt-001')
 
-server.app.build_route.set_env("server/green-waves-firebase-adminsdk.json")
+# server.app.build_route.set_env("server/green-waves-firebase-adminsdk.json")
 
 @app.route('/send_mqtt_data')
 def send_mqtt_data():

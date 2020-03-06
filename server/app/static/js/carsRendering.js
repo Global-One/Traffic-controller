@@ -82,7 +82,7 @@ function UpdateCarsData() {
                         if (car_telemetry) {
                             cars[car_ids[i]] = {};
                             let car = cars[car_ids[i]];
-                            console.log('Created car ' + car_ids[i]);
+                            logEvent('Created car ' + car_ids[i]);
                             car['last_telemetry_id'] = car_telemetry.length - 1;
                             // console.log(3.5, car_telemetry[0], car_telemetry[0].state);
                             car['marker'] = createCarMarker(car_telemetry[0].state.latitude, car_telemetry[0].state.longitude);
@@ -106,7 +106,7 @@ function UpdateCarsData() {
                     getTelemetry(car_ids[i], devicesData).then(car_telemetry => {
                             if (car_telemetry) {
                                 for (let j = cars[car_ids[i]].last_telemetry_id + 1; j < car_telemetry.length; ++j) {
-                                    console.log(j);
+                                    //console.log(j);
                                     // cars[car_ids[i]].simulation.processData(car_telemetry[j])
                                     cars[car_ids[i]].simulation.start(car_telemetry[j])
                                     // cars[car_ids[i]].marker.setLatLng([car_telemetry[j].state.latitude, car_telemetry[j].state.longitude])
@@ -167,7 +167,7 @@ function StartUpdating() {
     };
 
     function checkForStart() {
-        console.log(cars);
+        logEvent(cars);
         for (let car_id in cars) {
             // console.log(car_id);
             if (cars[car_id].last_telemetry_id > 1 && !cars[car_id]['isStarted']) {

@@ -9,13 +9,11 @@ $(document).ready(function () {
 
     // send test event to the server
     socket.on('connect', function () {
-        logEvent("Connected.");
-        console.log('Established connection with server!')
+        logEvent("Connected.", 'Established connection with server!')
     });
 
     socket.on('disconnect', () => {
-        logEvent("Disconnected.");
-        console.log("Disconnected from server.")
+        logEvent("Disconnected.", "Disconnected from server.")
     });
 
     let canStart = false;
@@ -32,11 +30,11 @@ $(document).ready(function () {
     socket.on('start_simulation', () => {
         updater = new StartUpdating();
         updater.start();
-        console.log("Starting!..");
+        logEvent("Starting!..");
     });
 
     socket.on('stop_simulation', () => {
-        console.log("Stopped.");
+        logEvent("Stopped.");
         // simulation.stop();
         canStart = true;
         updater.stop();

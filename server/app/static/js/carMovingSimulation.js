@@ -1,6 +1,6 @@
 $("#start").click(() => {
     $.get("/simulation_status", {"status": "start"}, function (data, status) {
-        console.log("Data: " + data + "\nStatus: " + status);
+        logEvent(data);
     });
     getAllDevices(devicesData).then(devices => {
         for (let i in devices) {

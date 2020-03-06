@@ -57,7 +57,7 @@ $('#show_route').click(() => {
         destinations.replace(', ', ',')}`).done(
         (data) => {
             let route_data = data['nodes'];
-            console.log(typeof route_data);
+            //console.log(typeof route_data);
 
             let post_data = data;
             post_data['device_id'] = 'mqtt-001';
@@ -78,7 +78,7 @@ $('#show_route').click(() => {
             }
 
             show_route(route_nodes, data.duration, data.distance);
-            console.log(routeLine);
+            logEvent("Route was built successfully", routeLine);
             show_route_traffic_signals(data['traffic_signals']);
         })
 });

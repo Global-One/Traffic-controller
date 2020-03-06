@@ -244,10 +244,10 @@ def send_data_from_device(device_id):
         'emergency-vehicles-registry',
         'emergency-vehicle-0',
         'emergency-vehicles-gateway',
-        r'server/app/mqtt/rsa_private.pem',
+        r'rsa_private_gateway.pem',
         # RS256_x509 key, RS256 doesn`t work
         'RS256',  # used in JWT creation, works
-        r'server/app/mqtt/roots.pem',
+        r'roots.pem',
         'mqtt.googleapis.com',
         8883,
         20,
