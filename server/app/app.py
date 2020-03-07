@@ -9,9 +9,7 @@ from requests import get
 import osmapi
 from time import sleep
 
-import server
-from server.app.build_route import build_route
-from server.app.mqtt.mqtt_device import send_data_from_device
+from mqtt import send_data_from_device
 
 app = Flask(__name__, static_folder='static/', template_folder="templates/", static_url_path="")
 # TODO: secret key

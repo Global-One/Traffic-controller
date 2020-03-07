@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t traffic-controller:latest .
+docker build --pull --no-cache --force-rm -t traffic-controller:latest .
