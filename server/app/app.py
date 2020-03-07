@@ -9,7 +9,8 @@ from requests import get
 import osmapi
 from time import sleep
 
-from mqtt import send_data_from_device
+from server.app.mqtt import send_data_from_device
+
 
 app = Flask(__name__, static_folder='static/', template_folder="templates/", static_url_path="")
 # TODO: secret key
@@ -52,10 +53,10 @@ def get_route():
 def get_javascript_data():
     status = request.args.get("status")
     if status == 'start':
-        socketio.emit('start_simulation', namespace='/test')
+        #socketio.emit('start_simulation', namespace='/test')
         return json.dumps({'Simulation status': status}), 200, {'ContentType': 'application/json'}
     elif status == 'stop':
-        socketio.emit('stop_simulation', namespace='/test')
+        #socketio.emit('stop_simulation', namespace='/test')
         return json.dumps({'Simulation status': status}), 200, {'ContentType': 'application/json'}
     else:
         return json.dumps({'Simulation status': "undefined"}), 404, {'ContentType': 'application/json'}
@@ -97,7 +98,6 @@ def send_route_to_firebase():
     payload = request.get_json()
     headers = {'content-type': 'application/json'}
     response = requests.post(url, data=json.dumps(payload), headers=headers)
-    print(payload)
     print(response)
     return json.dumps({'success': True}), 200
 
@@ -155,12 +155,12 @@ def build_route():
 @app.route('/send_mqtt_data')
 def send_mqtt_data():
     send_data_from_device(request.args.get('device_id'))
-    # global thread
-    # with thread_lock:
-    #     if thread is None:
-    #         thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
-    #     thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
-    return ''
+    #global thread
+    #with thread_lock:
+    #    if thread is None:
+    #        thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
+        #thread = socketio.start_background_task(background_thread, request.args.get('device_id'))
+    return 'mqtt running'
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=getenv('PORT', 5000))

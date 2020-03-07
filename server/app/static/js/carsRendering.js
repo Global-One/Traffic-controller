@@ -148,9 +148,9 @@ function UpdateCarsData() {
     };
     this.stop = () => {
         clearInterval(timer);
-        cars.foreach(
-            car => car.simulation.stop()
-        )
+        for (let i in cars){
+            cars[i].simulation.stop();
+        }
     };
 }
 

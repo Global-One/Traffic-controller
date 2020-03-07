@@ -1,3 +1,5 @@
+var upd;
+
 $("#start").click(() => {
     $.get("/simulation_status", {"status": "start"}, function (data, status) {
         logEvent(data);
@@ -10,13 +12,25 @@ $("#start").click(() => {
             })
         }
     });
+    upd = new StartUpdating();
+    startUpdating(upd);
 });
-//
-// $("#stop").click(() => {
-//     $.get("/simulation_status", {"status": "stop"}, function (data, status) {
-//         console.log("Data: " + data + "\nStatus: " + status);
-//     });
-// });
+ $("#stop").click(() => {
+     $.get("/simulation_status", {"status": "stop"}, function (data, status) {
+         console.log("Data: " + data + "\nStatus: " + status);
+     });
+     stopUpdating(upd);
+ });
+
+function startUpdating(updater){
+    updater.start();
+    console.log("Starting!..");
+}
+
+function stopUpdating(updater){
+    updater.stop();
+    console.log("Stopped.");
+}
 //
 // function CarMovingSimulation(carMarker) {
 //     let _move;
