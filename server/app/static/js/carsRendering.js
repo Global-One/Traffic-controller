@@ -1,27 +1,23 @@
 async function getLastRouteId(deviceId, databaseSnapshot) {
-    let id = await databaseSnapshot.child(deviceId).once('value').then(function (snapshot) {
+    return await databaseSnapshot.child(deviceId).once('value').then(function (snapshot) {
         return snapshot.val().last_route_id;
     });
-    return id;
 }
 
 async function getTelemetry(device_id, databaseSnapshot) {
-    let last_route_id = await getLastRouteId(device_id, databaseSnapshot);
-    let telemetry = await databaseSnapshot.child(device_id + '/telemetry/' + last_route_id).once('value').then(function (snapshot) {
+    return await databaseSnapshot.child(
+        device_id + '/telemetry/' + await getLastRouteId(device_id, databaseSnapshot)
+    ).once('value').then(function (snapshot) {
         return snapshot.val();
     });
-    // console.log(JSON.stringify(telemetry));
-    return telemetry;
 }
 
 async function getLightersOnCurrentRoute(device_id, databaseSnapshot) {
-    // console.log('lights', JSON.stringify(listOfLighters));
-    let last_route_id = await getLastRouteId(device_id, databaseSnapshot);
-    let telemetry = await databaseSnapshot.child(device_id + '/routes/' + last_route_id + '/traffic_signals').once('value').then(function (snapshot) {
+    return await databaseSnapshot.child(
+        device_id + '/routes/' + await getLastRouteId(device_id, databaseSnapshot) + '/traffic_signals'
+    ).once('value').then(function (snapshot) {
         return snapshot.val();
     });
-    // console.log(JSON.stringify(telemetry));
-    return telemetry;
 }
 
 async function getAllDevices(databaseSnapshot) {
@@ -53,7 +49,7 @@ async function getTelemetryForAllDevices(databaseSnapshot) {
 
 function createCarMarker(lat, lng) {
     let carIcon = L.icon({
-        iconUrl: 'img/car.png',
+        iconUrl: 'img/animated_ambulance.gif',
         iconSize: [35, 35],
         iconAnchor: [17.5, 0],
         popupAnchor: [0, 0]
@@ -148,9 +144,9 @@ function UpdateCarsData() {
     };
     this.stop = () => {
         clearInterval(timer);
-        cars.foreach(
-            car => car.simulation.stop()
-        )
+        for (let i in cars) {
+            cars[i].simulation.stop();
+        }
     };
 }
 
@@ -177,4 +173,3 @@ function StartUpdating() {
         }
     }
 }
-
