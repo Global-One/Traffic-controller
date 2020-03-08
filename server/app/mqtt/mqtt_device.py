@@ -4,10 +4,12 @@ import math
 import random
 import ssl
 import time
+
 from json import loads, dumps
 
 import jwt
 import paho.mqtt.client as mqtt
+
 from firebase_admin import credentials
 from firebase_admin import db
 from firebase_admin import initialize_app, delete_app
@@ -23,11 +25,14 @@ global packages
 packages = 0
 
 
+firebase_app = initialize_app(
+    credential=credentials.Certificate(loads(open(
+        r'green-waves-firebase-adminsdk.json').read())),
+    options={'databaseURL': 'https://green-waves.firebaseio.com/'})
+
+
 def payload_builder(device_id):
-    firebase_app = initialize_app(
-        credential=credentials.Certificate(loads(open(
-            r'green-waves-firebase-adminsdk.json').read())),
-        options={'databaseURL': 'https://green-waves.firebaseio.com/'})
+
     base = db.reference(f'devices/{device_id}', firebase_app)
     base_snapshot = base.get()
 
@@ -43,6 +48,8 @@ def payload_builder(device_id):
 
     route = []
     angles = []
+
+    time.sleep(3)
 
     def extend_route(start, end):
         i = len(route)
@@ -85,8 +92,6 @@ def payload_builder(device_id):
         })
 
     telemetry[-1]['state']['speed'] = 0
-
-    delete_app(firebase_app)
 
     return telemetry
 

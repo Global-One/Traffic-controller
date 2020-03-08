@@ -64,7 +64,7 @@ def send_route_to_firebase():
         url='https://us-central1-green-waves.cloudfunctions.net/route_to_firebase',
         data=dumps(request.get_json()),
         headers={'content-type': 'application/json'}
-    ))
+    )), 200
 
 @app.route('/build_route')
 def build_route():

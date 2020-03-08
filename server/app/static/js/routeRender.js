@@ -43,16 +43,17 @@ $('#reverse_route').click(() => {
 });
 
 // shows the loading animation and disables page while route is being built
-$(document).bind("ajaxSend", function () {
-    $("#loading").css('display', 'block');
-}).bind("ajaxComplete", function () {
-    $("#loading").hide();
-});
+//$(document).bind("ajaxSend", function () {
+//    $("#loading").css('display', 'block');
+//}).bind("ajaxComplete", function () {
+//    $("#loading").hide();
+//});
 
 $('#build_route').click(() => {
     let start = $("#route_start").val();
     let finish = $('#route_finish').val();
 
+    $("#loading").css('display', 'block');
     $.ajax(`/build_route?
     origins=${start.replace(', ', ',')}&
     destinations=${finish.replace(', ', ',')}`).done(
@@ -60,6 +61,7 @@ $('#build_route').click(() => {
             data['device_id'] = 'mqtt-001'; // device-id
             $.ajax({
                 type: "POST",
+                async: false,
                 url: '/to_firebase',
                 dataType: 'json',
                 data: JSON.stringify(data),
@@ -76,6 +78,7 @@ $('#build_route').click(() => {
 
             show_route(route_nodes, data.duration, data.distance);
             show_route_traffic_signals(data['traffic_signals']);
+            $("#loading").hide();
         })
 });
 
