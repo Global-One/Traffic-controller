@@ -163,7 +163,6 @@ function StartUpdating() {
     };
 
     function checkForStart() {
-        logEvent(cars);
         for (let car_id in cars) {
             // console.log(car_id);
             if (cars[car_id].last_telemetry_id > 1 && !cars[car_id]['isStarted']) {

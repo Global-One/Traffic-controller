@@ -16,6 +16,11 @@ $("#stop").click(() => {
     $.get("/simulation_status", {"status": "stop"}, function (res) {
         logEvent("...", res);
     });
+    getAllDevices(devicesData).then(devices => {
+        for (device in devices) {
+            $.get("/stop_mqtt_data", {"device-id": devices[device]})
+        }
+    });
     stopUpdating(upd);
 });
 

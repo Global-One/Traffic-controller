@@ -4,6 +4,7 @@ from time import sleep
 
 from requests import get, post
 from flask import Flask, render_template, request
+from multiprocessing import Process
 
 from osmapi import OsmApi
 
@@ -118,6 +119,7 @@ def build_route():
         'distance': data['distance']
     }
 
+ongoing_simulations = {}
 
 @app.route('/send_mqtt_data')
 def send_mqtt_data():
@@ -126,8 +128,28 @@ def send_mqtt_data():
     :return: None
     """
 
-    send_data_from_device(request.args.get('device-id', 'mqtt-001'))
+    if request.args.get('device-id') in ongoing_simulations.keys():
+        pass
+    else:
+        ongoing_simulations[request.args.get('device-id')] = Process(target=send_data_from_device, args=(request.args.get('device-id'),))
+        ongoing_simulations[request.args.get('device-id')].start()
     return 'mqtt running'
+
+
+@app.route('/stop_mqtt_data')
+def stop_mqtt_data():
+    """
+    Stop mqtt simulation
+    :return: None
+    """
+
+    if request.args.get('device-id') in ongoing_simulations.keys():
+        ongoing_simulations[request.args.get('device-id')].kill()
+        del ongoing_simulations[request.args.get('device-id')]
+    else:
+        pass
+    return 'mqtt stops'
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=getenv('PORT', 5000), debug=True)
