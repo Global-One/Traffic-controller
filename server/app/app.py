@@ -66,7 +66,6 @@ def send_route_to_firebase():
         headers={'content-type': 'application/json'}
     ))
 
-
 @app.route('/build_route')
 def build_route():
     """
@@ -129,7 +128,6 @@ def send_mqtt_data():
 
     send_data_from_device(request.args.get('device-id', 'mqtt-001'))
     return 'mqtt running'
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=getenv('PORT', 5000), debug=True)
