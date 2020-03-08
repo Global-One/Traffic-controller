@@ -51,7 +51,7 @@ function createCarMarker(lat, lng) {
     let carIcon = L.icon({
         iconUrl: 'img/animated_ambulance.gif',
         iconSize: [35, 35],
-        iconAnchor: [17.5, 0],
+        iconAnchor: [17.5, 17.5],
         popupAnchor: [0, 0]
     });
 

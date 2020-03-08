@@ -4,7 +4,6 @@ $("#start").click(() => {
     $.get("/simulation_status", {"status": "start"}, function (res) {
         logEvent("...", res);
     });
-
     getAllDevices(devicesData).then(devices => {
         for (device in devices) {
             $.get("/send_mqtt_data", {"device-id": devices[device]})

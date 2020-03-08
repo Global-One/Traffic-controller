@@ -43,7 +43,8 @@ function Move(marker) {
         y = value[1];
         let latlng = L.latLng(x, y);
         marker.setLatLng(latlng);
-        marker.setRotationAngle(90 - _data["state"]["course"]);
+        //marker.setRotationAngle(90 - _data["state"]["course"]);
+        marker.setRotationAngle(0);
     }
 
     function start(data, seconds = 0) {
