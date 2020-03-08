@@ -27,9 +27,9 @@ def payload_builder(device_id):
     firebase_app = initialize_app(
         credential=credentials.Certificate(loads(open(
             r'green-waves-firebase-adminsdk.json').read())),
-        options={'databaseURL': 'https://green-waves.firebaseio.com/'}, name="MQTT")
+        options={'databaseURL': 'https://green-waves.firebaseio.com/'})
     base = db.reference(f'devices/{device_id}', firebase_app)
-    base_snapshot = dict(base.get())
+    base_snapshot = base.get()
 
     telemetry = []
 
