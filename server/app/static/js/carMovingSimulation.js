@@ -1,17 +1,15 @@
 let upd;
 
 $("#start").click(() => {
-    getAllDevices(devicesData).then(devices => {
-        for (device in devices) {
-            $.get("/send_mqtt_data", {"device-id": devices[device]})
-        }
-    });
+    let deviceID = $('#marker_id').val();
+    cars[deviceID].canStart = true;
+    $.get("/send_mqtt_data", {"device-id": deviceID});
     startUpdating(upd);
 });
 
 $("#stop").click(() => {
     getAllDevices(devicesData).then(devices => {
-        for (device in devices) {
+        for (let device in devices) {
             $.get("/stop_mqtt_data", {"device-id": devices[device]})
         }
     });

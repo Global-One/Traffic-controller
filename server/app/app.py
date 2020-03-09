@@ -117,6 +117,11 @@ def send_mqtt_data():
     :return: None
     """
 
+    print(request.args.get('device-id'))
+
+    if not request.args.get('device-id'):
+        return '', 400
+
     if request.args.get('device-id') in ongoing_simulations.keys():
         pass
     else:

@@ -30,3 +30,4 @@ const trafficGreenLight = L.icon({
         iconAnchor: [9, 9],
     });
 
+let cars = {};

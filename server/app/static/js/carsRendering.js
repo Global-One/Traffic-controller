@@ -106,13 +106,11 @@ function createCarMarker(lat, lng) {
     return marker;
 }
 
-let cars = {};
-
 function UpdateCarsData() {
     function update() {
         getAllDevices(devicesData).then(car_ids => {
             for (let i in car_ids) {
-                if (cars[car_ids[i]].simulation === undefined) {
+                if (cars[car_ids[i]].simulation === undefined && cars[car_ids[i]].canStart) {
                     getTelemetry(car_ids[i], devicesData).then(car_telemetry => {
                         if (car_telemetry) {
                             let car = cars[car_ids[i]];
@@ -126,11 +124,12 @@ function UpdateCarsData() {
                             }
                         }
                     });
-                } else {
+                } else if (cars[car_ids[i]].isStarted) {
                     getTelemetry(car_ids[i], devicesData).then(car_telemetry => {
                             if (car_telemetry) {
                                 for (let j = cars[car_ids[i]].last_telemetry_id + 1; j < car_telemetry.length; ++j) {
-                                    cars[car_ids[i]].simulation.start(car_telemetry[j])
+                                    cars[car_ids[i]].simulation.start(car_telemetry[j]);
+                                    logEvent("Received telemetry", JSON.stringify(car_telemetry[j]));
                                 }
                                 cars[car_ids[i]].last_telemetry_id = car_telemetry.length - 1;
                             }
@@ -147,9 +146,9 @@ function UpdateCarsData() {
             getLightersOnCurrentRoute(car_id, devicesData).then(traffic_signals => {
                 for (let i in traffic_signals) {
                     let traffic_signal_id = traffic_signals[i].id;
-                    if (traffic_signals[i].state && traffic_signals_on_route[traffic_signal_id].getIcon() === trafficRedLight) {
+                    if (traffic_signals[i].state && cars[car_id].traffic_signals_on_route[traffic_signal_id].getIcon() === trafficRedLight) {
                         logEvent('Traffic light change', JSON.stringify({'id': traffic_signal_id}));
-                        traffic_signals_on_route[traffic_signal_id].setIcon(trafficGreenLight);
+                        cars[car_id].traffic_signals_on_route[traffic_signal_id].setIcon(trafficGreenLight);
                     }
                 }
             })
@@ -186,7 +185,7 @@ function StartUpdating() {
 
     function checkForStart() {
         for (let car_id in cars) {
-            if (cars[car_id].last_telemetry_id > 1 && !cars[car_id]['isStarted']) {
+            if (cars[car_id].last_telemetry_id > 1 && !cars[car_id]['isStarted'] && cars[car_id].canStart) {
                 // cars[car_id].simulation.start();
                 cars[car_id]['isStarted'] = true;
             }

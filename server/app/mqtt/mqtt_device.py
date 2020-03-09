@@ -140,7 +140,7 @@ def get_client(
         should_backoff = True
 
     client.on_connect = on_connect
-    client.on_publish = lambda unused_client, unused_userdata, unused_mid: print('on_publish.')
+    client.on_publish = lambda unused_client, unused_userdata, unused_mid: print(device_id + ': on_publish.')
     client.on_disconnect = on_disconnect
     client.on_message = lambda unused_client, unused_userdata, message: \
         print('Received message \'{}\' on topic \'{}\' with Qos {}.'.format(
@@ -243,7 +243,7 @@ def send_data_from_device(device_id):
         'green-waves',
         'us-central1',
         'emergency-vehicles-registry',
-        'emergency-vehicle-0',
+        device_id,
         'emergency-vehicles-gateway',
         'rsa_private_gateway.pem',
         # RS256_x509 key, RS256 doesn`t work

@@ -73,15 +73,20 @@ $('#reverse_route').click(() => {
 //});
 
 $('#build_route').click(() => {
+    // let latLng = cars[$('#route_builder').find('#marker_id').val()].marker.getLatLng();
+    // $("#route_start").val(`${latLng.lat}, ${latLng.lng}`);
     let start = $("#route_start").val();
     let finish = $('#route_finish').val();
 
     $("#loading").css('display', 'block');
+
     $.ajax(`/build_route?
     origins=${start.replace(', ', ',')}&
     destinations=${finish.replace(', ', ',')}`).done(
         (data) => {
-            data['device_id'] = $('#marker_id').val(); // device-id
+            let deviceID = $('#marker_id').val();
+            data['device_id'] = deviceID; // device-id
+            // data['device_id'] = 'mqtt-002';
             $.ajax({
                 type: "POST",
                 async: false,
@@ -99,8 +104,8 @@ $('#build_route').click(() => {
                 i++;
             }
 
-            show_route(route_nodes, data.duration, data.distance);
-            show_route_traffic_signals(data['traffic_signals']);
+            show_route(route_nodes, data.duration, data.distance, deviceID);
+            show_route_traffic_signals(data['traffic_signals'], deviceID);
             $("#loading").hide();
         });
 
@@ -108,30 +113,30 @@ $('#build_route').click(() => {
     logEvent("Route was built")
 });
 
-var routeLine;
-
-function show_route(route_nodes, duration, distance) {
-    if (routeLine) map.removeLayer(routeLine);
-    routeLine = L.polyline(route_nodes).addTo(map);
+function show_route(route_nodes, duration, distance, deviceID) {
+    if (cars[deviceID].routeLine) map.removeLayer(cars[deviceID].routeLine);
+    let routeLine = L.polyline(route_nodes).addTo(map);
     routeLine.bindPopup(`
         <b>Duration: </b>${(duration / 60.0).toFixed(0)} minutes<br>
         <b>Distance: </b>${(distance / 1000).toFixed(2)} km
     `);
+    cars[deviceID].routeLine = routeLine;
 }
 
-var traffic_signals_on_route = {};
-
 // here could be some bugs
-function show_route_traffic_signals(traffic_signals_nodes) {
-    if (traffic_signals_on_route) {
-        for (signal in traffic_signals_on_route) {
-            map.removeLayer(traffic_signals_on_route[signal]);
+function show_route_traffic_signals(traffic_signals_nodes, deviceID) {
+    let traffic_signals_on_route = {};
+
+    if (cars[deviceID].traffic_signals_on_route) {
+        for (let signal in traffic_signals_on_route) {
+            map.removeLayer(cars[deviceID].traffic_signals_on_route[signal]);
         }
     }
-    for (traffic_signal_id in traffic_signals_nodes) {
+    for (let traffic_signal_id in traffic_signals_nodes) {
         let traffic_light = new L.Marker(traffic_signals_nodes[traffic_signal_id], {icon: trafficRedLight});
         traffic_signals_on_route[traffic_signals_nodes[traffic_signal_id].id] = traffic_light.addTo(map);
     }
+    cars[deviceID].traffic_signals_on_route = traffic_signals_on_route;
 }
 
 function enableTrafficSignal(trafficSignalMarker) {
