@@ -4,15 +4,13 @@ import math
 import random
 import ssl
 import time
-
 from json import loads, dumps
 
 import jwt
 import paho.mqtt.client as mqtt
-
 from firebase_admin import credentials
 from firebase_admin import db
-from firebase_admin import initialize_app, delete_app
+from firebase_admin import initialize_app
 
 # from numpy.distutils.system_info import tmp
 # from server.app.db.db_initialize import firebase_app
@@ -24,7 +22,6 @@ seconds = 0
 global packages
 packages = 0
 
-
 firebase_app = initialize_app(
     credential=credentials.Certificate(loads(open(
         r'green-waves-firebase-adminsdk.json').read())),
@@ -32,7 +29,6 @@ firebase_app = initialize_app(
 
 
 def payload_builder(device_id):
-
     base = db.reference(f'devices/{device_id}', firebase_app)
     base_snapshot = base.get()
 
@@ -79,7 +75,7 @@ def payload_builder(device_id):
             "skin": "ambulance",
             "state": {
                 "acceleration": 0,
-                "course": angles[i] if i < len(route)-1 else angles[len(angles)-1],
+                "course": angles[i] if i < len(route) - 1 else angles[len(angles) - 1],
                 "gear": "TODO",
                 "latitude": float(node['lat']),
                 "longitude": float(node['lng']),
