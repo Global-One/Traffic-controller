@@ -1,14 +1,13 @@
-from os import getenv
 from json import loads, dumps
+from multiprocessing import Process
+from os import getenv
 from time import sleep
 
-from requests import get, post
 from flask import Flask, render_template, request
-from multiprocessing import Process
-
 from osmapi import OsmApi
+from requests import get, post
 
-from mqtt import send_data_from_device
+from server.app.mqtt.mqtt_device import send_data_from_device
 
 osm_api = OsmApi()
 
@@ -27,24 +26,12 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/simulation_status')
-def simulation_status():
-    status = request.args.get("status")
-    if status == 'start':
-        return dumps({'status': status}), 200, {'ContentType': 'application/json'}
-    elif status == 'stop':
-        return dumps({'status': status}), 200, {'ContentType': 'application/json'}
-    else:
-        return dumps({'status': "undefined"}), 404, {'ContentType': 'application/json'}
-
-
 @app.route("/update_position", methods=["POST"])
 def update_position():
     """
     update position and traffic light state
     :return: response
     """
-
     return str(get(
         url='https://us-central1-green-waves.cloudfunctions.net/traffic-light-colour-changer',
         params={
@@ -55,17 +42,17 @@ def update_position():
 
 
 @app.route('/to_firebase', methods=["POST"])
-def send_route_to_firebase():
+def to_firebase():
     """
     write route to database
     :return: response
     """
-
     return str(post(
         url='https://us-central1-green-waves.cloudfunctions.net/route_to_firebase',
         data=dumps(request.get_json()),
         headers={'content-type': 'application/json'}
     )), 200
+
 
 @app.route('/build_route')
 def build_route():
@@ -119,7 +106,9 @@ def build_route():
         'distance': data['distance']
     }
 
+
 ongoing_simulations = {}
+
 
 @app.route('/send_mqtt_data')
 def send_mqtt_data():
@@ -131,7 +120,8 @@ def send_mqtt_data():
     if request.args.get('device-id') in ongoing_simulations.keys():
         pass
     else:
-        ongoing_simulations[request.args.get('device-id')] = Process(target=send_data_from_device, args=(request.args.get('device-id'),))
+        ongoing_simulations[request.args.get('device-id')] = Process(target=send_data_from_device,
+                                                                     args=(request.args.get('device-id'),))
         ongoing_simulations[request.args.get('device-id')].start()
     return 'mqtt running'
 

@@ -1,78 +1,81 @@
-function logEvent(title, message = "...") {
-    let card = $(`
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">${title}</h5>
-          <p class="card-text"></p>
+function logEvent(title, message = undefined) {
+    if (typeof message == 'string')
+        var str = JSON.stringify(JSON.parse(message), undefined, 4);
+    let div =
+        `
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">${title}</h5>
+                <p class="card-text"></p>
+            </div>
         </div>
-      </div>
-    `);
-    card.children().first()
-        .children().last()
-    // set text in <p class="card-text"></p>
-        .text(message.trim());
-    let log_list = $("#log-list");
-    log_list.append(card.html().trim());
-    $("#control").scrollTop(log_list.height());
+        `;
+    let d = $(div);
+    let card_text = d.children().first().children().last();
+    card_text.text((str === undefined) ? (message === undefined) ? '...' : str : str.trim());
+    let x = $("#log-cards");
+    x.append(d.html().trim());
 }
 
+(function () {
 // save these original methods before they are overwritten
-let proto_initIcon = L.Marker.prototype._initIcon;
-let proto_setPos = L.Marker.prototype._setPos;
+    let proto_initIcon = L.Marker.prototype._initIcon;
+    let proto_setPos = L.Marker.prototype._setPos;
 
-let oldIE = (L.DomUtil.TRANSFORM === 'msTransform');
+    let oldIE = (L.DomUtil.TRANSFORM === 'msTransform');
 
-L.Marker.addInitHook(function () {
-    let iconOptions = this.options.icon & this.options.icon.options;
-    let iconAnchor = iconOptions & this.options.icon.options.iconAnchor;
-    if (iconAnchor) {
-        iconAnchor = (iconAnchor[0] + 'px ' + iconAnchor[1] + 'px');
-    }
-    this.options.rotationOrigin = this.options.rotationOrigin | iconAnchor | 'center bottom';
-    this.options.rotationAngle = this.options.rotationAngle | 0;
-
-    // ensure marker keeps rotated during dragging
-    this.on('drag', function (e) {
-            e.target._applyRotation();
-    });
-});
-
-L.Marker.include({
-    _initIcon: function () {
-        proto_initIcon.call(this);
-    },
-
-    _setPos: function (pos) {
-        proto_setPos.call(this, pos);
-        this._applyRotation();
-    },
-
-    _applyRotation: function () {
-        if (this.options.rotationAngle) {
-            this._icon.style[L.DomUtil.TRANSFORM + 'Origin'] = this.options.rotationOrigin;
-
-            if (oldIE) {
-                // for IE 9, use the 2D rotation
-                this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
-            } else {
-                // for modern browsers, prefer the 3D accelerated version
-                this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
-            }
+    L.Marker.addInitHook(function () {
+        let iconOptions = this.options.icon & this.options.icon.options;
+        let iconAnchor = iconOptions & this.options.icon.options.iconAnchor;
+        if (iconAnchor) {
+            iconAnchor = (iconAnchor[0] + 'px ' + iconAnchor[1] + 'px');
         }
-    },
+        this.options.rotationOrigin = this.options.rotationOrigin | iconAnchor | 'center bottom';
+        this.options.rotationAngle = this.options.rotationAngle | 0;
 
-    setRotationAngle: function (angle) {
-        this.options.rotationAngle = angle;
-        this.update();
-        return this;
-    },
+        // ensure marker keeps rotated during dragging
+        this.on('drag', function (e) {
+            e.target._applyRotation();
+        });
+    });
 
-    setRotationOrigin: function (origin) {
-        this.options.rotationOrigin = origin;
-        this.update();
-        return this;
-    }
-});
+    L.Marker.include({
+        _initIcon: function () {
+            proto_initIcon.call(this);
+        },
+
+        _setPos: function (pos) {
+            proto_setPos.call(this, pos);
+            this._applyRotation();
+        },
+
+        _applyRotation: function () {
+            if (this.options.rotationAngle) {
+                this._icon.style[L.DomUtil.TRANSFORM + 'Origin'] = this.options.rotationOrigin;
+
+                if (oldIE) {
+                    // for IE 9, use the 2D rotation
+                    this._icon.style[L.DomUtil.TRANSFORM] = 'rotate(' + this.options.rotationAngle + 'deg)';
+                } else {
+                    // for modern browsers, prefer the 3D accelerated version
+                    this._icon.style[L.DomUtil.TRANSFORM] += ' rotateZ(' + this.options.rotationAngle + 'deg)';
+                }
+            }
+        },
+
+        setRotationAngle: function (angle) {
+            this.options.rotationAngle = angle;
+            this.update();
+            return this;
+        },
+
+        setRotationOrigin: function (origin) {
+            this.options.rotationOrigin = origin;
+            this.update();
+            return this;
+        }
+    });
+})();
 
 function kphToMs(speed) {
     return speed / 3.6;

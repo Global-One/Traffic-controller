@@ -12,7 +12,7 @@ L.control.scale()
     .addTo(map);
 
 // this firebase has read-only unauthorised access
-firebase.initializeApp( { databaseURL: "https://green-waves.firebaseio.com" } );
+firebase.initializeApp({databaseURL: "https://green-waves.firebaseio.com"});
 // reference to node with device data
 let devicesData = firebase.database().ref('devices');
 
@@ -22,9 +22,11 @@ const trafficGreenLight = L.icon({
 
         iconSize: [18, 18], // size of the icon
         iconAnchor: [9, 9], // point of the icon which will correspond to marker's locationr
-    }), trafficRedLight = L.icon({
+    }),
+    trafficRedLight = L.icon({
         iconUrl: 'img/red-light.png',
 
         iconSize: [18, 18],
         iconAnchor: [9, 9],
     });
+

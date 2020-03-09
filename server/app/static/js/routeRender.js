@@ -3,12 +3,18 @@ map.on('contextmenu', (e) => {
     let tdiv =
         `
         <div class="list-group pl-0">
-            <button id="direction_from" onclick="direction_from(${e.latlng.lat}, ${e.latlng.lng})" class="list-group-item list-group-item-action p-1">Direction from here</button>
+            <button id="direction_from" onclick="direction_from(${e.latlng.lat}, ${e.latlng.lng})" class="list-group-item list-group-item-action p-1" disabled>Direction from here</button>
             <button id="direction_to" onclick="direction_to(${e.latlng.lat}, ${e.latlng.lng})" class="list-group-item list-group-item-action p-1">Direction to here</button>
             <button id="center_map" onclick="center_map(${e.latlng.lat}, ${e.latlng.lng})" class="list-group-item list-group-item-action p-1">Center map here</button>
         </div>
         `
     ;
+    let disabled = $('#route_builder').hasClass('invisible');
+    if (disabled) {
+        let jdiv = $(tdiv);
+        jdiv.find("#direction_to").attr('disabled', 'disabled');
+        tdiv = jdiv.html();
+    }
     let tpopup = L.popup({closeButton: false})
         .setLatLng(e.latlng)
         .setContent(tdiv)
@@ -17,6 +23,10 @@ map.on('contextmenu', (e) => {
     $($($(tpopup._container).children()[0]).children()[0]).css({'margin': '0px'});
     $('.leaflet-popup-content-wrapper').css({'background': 'none', 'box-shadow': 'none'});
     $('.leaflet-popup-tip-container').css({'visibility': 'hidden', 'display': 'none'});
+});
+
+map.on('click', () => {
+    let disabled = $('#route_builder').addClass('invisible');
 });
 
 function center_map(lat, lng) {
@@ -31,7 +41,20 @@ function direction_from(lat, lng) {
 
 function direction_to(lat, lng) {
     map.closePopup();
-    $('#route_finish').val(`${lat}, ${lng}`)
+    $('#route_finish').val(`${lat}, ${lng}`);
+
+    let empty = false;
+    $('.route-input input').each(function () {
+        if ($(this).val().length == 0) {
+            empty = true;
+        }
+    });
+
+    if (empty) {
+        $('#build_route').attr('disabled', 'disabled');
+    } else {
+        $('#build_route').attr('disabled', false);
+    }
 }
 
 // function to swap origin and destination coordinates
@@ -58,7 +81,7 @@ $('#build_route').click(() => {
     origins=${start.replace(', ', ',')}&
     destinations=${finish.replace(', ', ',')}`).done(
         (data) => {
-            data['device_id'] = 'mqtt-001'; // device-id
+            data['device_id'] = $('#marker_id').val(); // device-id
             $.ajax({
                 type: "POST",
                 async: false,
@@ -79,7 +102,10 @@ $('#build_route').click(() => {
             show_route(route_nodes, data.duration, data.distance);
             show_route_traffic_signals(data['traffic_signals']);
             $("#loading").hide();
-        })
+        });
+
+    $('#buttons button').attr('disabled', false);
+    logEvent("Route was built")
 });
 
 var routeLine;
@@ -93,7 +119,7 @@ function show_route(route_nodes, duration, distance) {
     `);
 }
 
-var traffic_signals_on_route = { };
+var traffic_signals_on_route = {};
 
 // here could be some bugs
 function show_route_traffic_signals(traffic_signals_nodes) {

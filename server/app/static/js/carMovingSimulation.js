@@ -1,9 +1,6 @@
-var upd;
+let upd;
 
 $("#start").click(() => {
-    $.get("/simulation_status", {"status": "start"}, function (res) {
-        logEvent("...", res);
-    });
     getAllDevices(devicesData).then(devices => {
         for (device in devices) {
             $.get("/send_mqtt_data", {"device-id": devices[device]})
@@ -13,9 +10,6 @@ $("#start").click(() => {
 });
 
 $("#stop").click(() => {
-    $.get("/simulation_status", {"status": "stop"}, function (res) {
-        logEvent("...", res);
-    });
     getAllDevices(devicesData).then(devices => {
         for (device in devices) {
             $.get("/stop_mqtt_data", {"device-id": devices[device]})
@@ -27,12 +21,12 @@ $("#stop").click(() => {
 function startUpdating(updater) {
     if (updater) stopUpdating(updater);
     updater = new StartUpdating();
-    upd = updater
+    upd = updater;
     updater.start();
-    console.log("Starting!..");
+    logEvent("Starting!..");
 }
 
 function stopUpdating(updater) {
     updater.stop();
-    console.log("Stopped.");
+    logEvent("Stopped.");
 }

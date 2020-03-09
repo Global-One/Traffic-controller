@@ -45,29 +45,37 @@
                     <div id="map" class="shadow mr-5 mr-lg-0"></div>
                     <!-- controls for route building -->
                     <div id="route_builder"
-                         class="position-absolute mt-2 mr-5 p-1 mt-lg-3 mr-lg-3 p-lg-2 shadow rounded">
-                        <div class="row justify-content-end m-0 p-lg-1 m-lg-1">
+                         class="position-absolute mt-2 mr-5 p-1 mt-lg-3 mr-lg-3 p-lg-2 shadow rounded invisible">
+                        <!-- input start -->
+                        <div class="row justify-content-end m-0 p-lg-1 m-lg-1 route-input">
+                            <img draggable="true"
+                                 src="{{ url_for('static', filename='img/marker-green.png') }}"
+                                 class="p-1 mr-2 mt-1 invisible">
+                            <input placeholder="ID" id="marker_id" class="col p-1 m-1 " type="text" readonly>
+                        </div>
+                        <div class="row justify-content-end m-0 p-lg-1 m-lg-1 route-input">
                             <img id="marker_origin" draggable="true"
                                  src="{{ url_for('static', filename='img/marker-green.png') }}"
                                  class="p-1 mr-2 mt-1">
-                            <!-- input start -->
-                            <input placeholder="From" id="route_start" class="col p-1 m-1" type="text">
+
+                            <input placeholder="From" id="route_start" class="col p-1 m-1" type="text" readonly>
                         </div>
-                        <div class="row justify-content-end m-0 p-lg-1 m-lg-1">
+                        <div class="row justify-content-end m-0 p-lg-1 m-lg-1 route-input">
                             <img id="marker_destination"
                                  src="{{ url_for('static', filename='img/marker-red.png') }}"
                                  class="p-1 mr-2 mt-1">
-                            <!-- input finish -->
+
                             <input placeholder="To" id="route_finish" class=" col p-1 m-1 mt-0" type="text"
                                    step=0.000000000001>
                         </div>
-                        <div>
+                        <!-- input finish -->
+                        <div class="route-buttons">
                             <button id="build_route" type="button"
-                                    class="btn btn-outline-dark mt-2 mx-1">
+                                    class="btn btn-outline-dark mt-2 mx-1" disabled="disabled">
                                 Build route
                             </button>
                             <button id="reverse_route" type="button"
-                                    class="btn btn-outline-dark mt-2 mx-1">
+                                    class="btn btn-outline-dark mt-2 mx-1" disabled="disabled">
                                 Reverse route
                             </button>
                         </div>
@@ -79,11 +87,12 @@
                         <div id="buttons"
                              class="row text-center justify-content-center position-sticky p-2 mx-0 border-bottom">
                             <!-- simulation controls -->
-                            <div class="col-md-auto">
-                                <button id="start" type="button" class="btn btn-outline-success m-1">
+                            <div class="col-md-auto ">
+                                <button id="start" type="button" class="btn btn-outline-success m-1"
+                                        disabled="disabled">
                                     Start
                                 </button>
-                                <button id="stop" type="button" class="btn btn-outline-danger m-1">
+                                <button id="stop" type="button" class="btn btn-outline-danger m-1" disabled="disabled">
                                     Stop
                                 </button>
                             </div>
@@ -93,13 +102,13 @@
                             <div class="col pl-0">
                                 <a class="btn btn-link" data-toggle="collapse" aria-expanded="true"
                                    href="#log-collapse" role="button">
-                                    Logs... 📃
+                                    📃 Logs...
                                 </a>
                             </div>
                         </div>
                         <!-- log list -->
                         <div class="row pt-2 m-0 collapse show" id="log-collapse">
-                            <div id="log-list" class="overflow-auto col p-0">
+                            <div id="log-cards" class="overflow-auto col p-0">
                                 <!-- list`s contents -->
                             </div>
                         </div>
