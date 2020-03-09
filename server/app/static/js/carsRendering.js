@@ -122,14 +122,24 @@ function UpdateCarsData() {
                                 logEvent("Received telemetry", JSON.stringify(car_telemetry[telemetry]));
                                 simulation.start(car_telemetry[telemetry]);
                             }
+                            car['last_update'] = new Date();
                         }
                     });
                 } else if (cars[car_ids[i]].isStarted) {
                     getTelemetry(car_ids[i], devicesData).then(car_telemetry => {
                             if (car_telemetry) {
+                                if (cars[car_ids[i]].last_telemetry_id === car_telemetry.length - 1) {
+                                    let now = new Date();
+                                    if (now.getTime() - cars[car_ids[i]].last_update.getTime() > 3000) {
+                                        cars[car_ids[i]].simulation.start(car_telemetry[car_telemetry.length - 1]);
+                                        cars[car_ids[i]].simulation.stop();
+                                        cars[car_ids[i]].last_update = now;
+                                    }
+                                }
                                 for (let j = cars[car_ids[i]].last_telemetry_id + 1; j < car_telemetry.length; ++j) {
                                     cars[car_ids[i]].simulation.start(car_telemetry[j]);
                                     logEvent("Received telemetry", JSON.stringify(car_telemetry[j]));
+                                    cars[car_ids[i]].last_update = new Date();
                                 }
                                 cars[car_ids[i]].last_telemetry_id = car_telemetry.length - 1;
                             }

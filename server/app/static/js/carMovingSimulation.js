@@ -6,14 +6,12 @@ $("#start").click(() => {
     cars[deviceID].canStart = true;
     $.get("/send_mqtt_data", {"device-id": deviceID});
     startUpdating(upd);
-    $('#background_music').attr('autoplay', 'autoplay');
-    $('#background_music').attr('loop', 'loop');
     background_music.play();
     background_music.loop = true;
 });
 
 $("#stop").click(() => {
-    stopUpdating(upd);
+    // stopUpdating(upd);
     getAllDevices(devicesData).then(devices => {
         for (let device in devices) {
             $.get("/stop_mqtt_data", {"device-id": devices[device]});
