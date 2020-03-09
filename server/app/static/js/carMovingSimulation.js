@@ -10,21 +10,16 @@ $("#start").click(() => {
 $("#stop").click(() => {
     getAllDevices(devicesData).then(devices => {
         for (let device in devices) {
-            $.get("/stop_mqtt_data", {"device-id": devices[device]})
+            $.get("/stop_mqtt_data", {"device-id": devices[device]});
+            logEvent("Stopped.");
         }
     });
-    stopUpdating(upd);
 });
 
 function startUpdating(updater) {
-    if (updater) stopUpdating(updater);
+    // if (updater) stopUpdating(updater);
     updater = new StartUpdating();
     upd = updater;
     updater.start();
     logEvent("Starting!..");
-}
-
-function stopUpdating(updater) {
-    updater.stop();
-    logEvent("Stopped.");
 }

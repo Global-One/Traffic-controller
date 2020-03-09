@@ -35,7 +35,7 @@ def payload_builder(device_id):
     telemetry = []
 
     speed = 80
-    step = 0.000009 * speed / 3.6
+    step = (0.000009 * speed / 3.6) * 1
 
     def calc_angle(node1, node2):
         dy = node2['lat'] - node1['lat']
@@ -68,7 +68,7 @@ def payload_builder(device_id):
     functools.reduce(extend_route, base_snapshot['routes'][base_snapshot['last_route_id']]['nodes'])
 
     for i, node in enumerate(route):
-        telemetry.append({
+        yield {
             "id": device_id,
             "msec": "TODO",
             "name": "Emergency0",
@@ -80,16 +80,16 @@ def payload_builder(device_id):
                 "latitude": float(node['lat']),
                 "longitude": float(node['lng']),
                 "rpm": "TODO",
-                "speed": speed
+                "speed": 0 if i == len(route) - 1 else speed
             },
             "status": "Moving",
             "timestp": "TODO",
             "type": "Emergency"
-        })
+        }
 
-    telemetry[-1]['state']['speed'] = 0
-
-    return telemetry
+    # telemetry[-1]['state']['speed'] = 0
+    #
+    # return telemetry
 
 
 def create_jwt(project_id, private_key_file, algorithm):
@@ -106,15 +106,16 @@ def get_client(
         project_id,
         cloud_region,
         registry_id,
-        device_id,
+        gateway_id,
         private_key_file,
         algorithm,
         ca_certs,
         mqtt_bridge_hostname,
-        mqtt_bridge_port
+        mqtt_bridge_port,
+        device_id
 ):
     client = mqtt.Client(
-        client_id=f'projects/{project_id}/locations/{cloud_region}/registries/{registry_id}/devices/{device_id}'
+        client_id=f'projects/{project_id}/locations/{cloud_region}/registries/{registry_id}/devices/{gateway_id}'
     )
 
     client.username_pw_set(
@@ -148,8 +149,8 @@ def get_client(
 
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
-    client.subscribe(f'/devices/{device_id}/config', qos=1)
-    client.subscribe(f'/devices/{device_id}/commands/#', qos=0)
+    client.subscribe(f'/devices/{gateway_id}/config', qos=1)
+    client.subscribe(f'/devices/{gateway_id}/commands/#', qos=0)
 
     return client
 
@@ -174,7 +175,6 @@ def send_data_from_bound_device(
         mqtt_bridge_hostname,
         mqtt_bridge_port,
         jwt_expires_minutes,
-        payload
 ):
     global minimum_backoff_time
 
@@ -193,7 +193,8 @@ def send_data_from_bound_device(
         algorithm,
         ca_certs,
         mqtt_bridge_hostname,
-        mqtt_bridge_port
+        mqtt_bridge_port,
+        device_id
     )
 
     attach_device(client, device_id, '')
@@ -202,8 +203,8 @@ def send_data_from_bound_device(
     gateway_state = 'Starting gateway at: {}.'.format(time.time())
     client.publish(gateway_topic, gateway_state, qos=1)
 
-    for telemetry in payload:
-        client.loop()
+    for telemetry in payload_builder(device_id):
+        client.loop_start()
 
         if should_backoff:
             if minimum_backoff_time > 32:
@@ -234,6 +235,7 @@ def send_data_from_bound_device(
                 mqtt_bridge_hostname,
                 mqtt_bridge_port
             )
+    client.loop_stop()
 
     detach_device(client, device_id)
 
@@ -252,7 +254,6 @@ def send_data_from_device(device_id):
         'mqtt.googleapis.com',
         8883,
         20,
-        payload_builder(device_id)
     )
 
 

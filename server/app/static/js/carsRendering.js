@@ -146,7 +146,7 @@ function UpdateCarsData() {
             getLightersOnCurrentRoute(car_id, devicesData).then(traffic_signals => {
                 for (let i in traffic_signals) {
                     let traffic_signal_id = traffic_signals[i].id;
-                    if (traffic_signals[i].state && cars[car_id].traffic_signals_on_route[traffic_signal_id].getIcon() === trafficRedLight) {
+                    if (traffic_signals[i].state && cars[car_id].traffic_signals_on_route && cars[car_id].traffic_signals_on_route[traffic_signal_id].getIcon() === trafficRedLight) {
                         logEvent('Traffic light change', JSON.stringify({'id': traffic_signal_id}));
                         cars[car_id].traffic_signals_on_route[traffic_signal_id].setIcon(trafficGreenLight);
                     }
@@ -185,7 +185,7 @@ function StartUpdating() {
 
     function checkForStart() {
         for (let car_id in cars) {
-            if (cars[car_id].last_telemetry_id > 1 && !cars[car_id]['isStarted'] && cars[car_id].canStart) {
+            if (!cars[car_id]['isStarted'] && cars[car_id].canStart) {
                 // cars[car_id].simulation.start();
                 cars[car_id]['isStarted'] = true;
             }
