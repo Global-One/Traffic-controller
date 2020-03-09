@@ -7,7 +7,7 @@ from flask import Flask, render_template, request
 from osmapi import OsmApi
 from requests import get, post
 
-from server.app.mqtt.mqtt_device import send_data_from_device
+from mqtt import send_data_from_device
 
 osm_api = OsmApi()
 
@@ -123,7 +123,11 @@ def send_mqtt_data():
         return '', 400
 
     if request.args.get('device-id') in ongoing_simulations.keys():
-        pass
+        ongoing_simulations[request.args.get('device-id')].kill()
+        del ongoing_simulations[request.args.get('device-id')]
+        ongoing_simulations[request.args.get('device-id')] = Process(target=send_data_from_device,
+                                                                     args=(request.args.get('device-id'),))
+        ongoing_simulations[request.args.get('device-id')].start()
     else:
         ongoing_simulations[request.args.get('device-id')] = Process(target=send_data_from_device,
                                                                      args=(request.args.get('device-id'),))

@@ -13,19 +13,28 @@ $("#start").click(() => {
 });
 
 $("#stop").click(() => {
+    stopUpdating(upd);
     getAllDevices(devicesData).then(devices => {
         for (let device in devices) {
             $.get("/stop_mqtt_data", {"device-id": devices[device]});
-            logEvent("Stopped.");
         }
     });
     background_music.pause();
 });
 
 function startUpdating(updater) {
-    // if (updater) stopUpdating(updater);
-    updater = new StartUpdating();
-    upd = updater;
-    updater.start();
+    if (updater) {
+        stopUpdating(updater);
+    } else {
+        upd = new StartUpdating();
+    }
+    upd.start();
     logEvent("Starting!..");
+}
+
+function stopUpdating(updater) {
+    logEvent("Stopped.");
+    if (updater) updater.stop();
+    upd = null;
+    upd = new StartUpdating();
 }

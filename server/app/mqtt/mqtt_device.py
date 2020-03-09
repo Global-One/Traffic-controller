@@ -35,7 +35,7 @@ def payload_builder(device_id):
     telemetry = []
 
     speed = 80
-    step = (0.000009 * speed / 3.6) * 1
+    step = (0.000009 * speed / 3.6) * 1.2
 
     def calc_angle(node1, node2):
         dy = node2['lat'] - node1['lat']
@@ -80,7 +80,7 @@ def payload_builder(device_id):
                 "latitude": float(node['lat']),
                 "longitude": float(node['lng']),
                 "rpm": "TODO",
-                "speed": 0 if i == len(route) - 1 else speed
+                "speed": speed if i < len(route) - 1 else 0
             },
             "status": "Moving",
             "timestp": "TODO",
@@ -217,7 +217,7 @@ def send_data_from_bound_device(
             client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
         client.publish(device_topic, dumps(telemetry), qos=1)
-        time.sleep(1)
+        time.sleep(0.75)
         global packages
         packages += 1
 

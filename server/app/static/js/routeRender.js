@@ -57,14 +57,6 @@ function direction_to(lat, lng) {
     }
 }
 
-// function to swap origin and destination coordinates
-$('#reverse_route').click(() => {
-    let start = $("#route_start").val();
-    let finish = $('#route_finish').val();
-    $("#route_start").val(finish);
-    $('#route_finish').val(start);
-});
-
 // shows the loading animation and disables page while route is being built
 //$(document).bind("ajaxSend", function () {
 //    $("#loading").css('display', 'block');
@@ -107,6 +99,8 @@ $('#build_route').click(() => {
             show_route(route_nodes, data.duration, data.distance, deviceID);
             show_route_traffic_signals(data['traffic_signals'], deviceID);
             $("#loading").hide();
+            $('#reverse_route').attr('disabled', false);
+            logEvent("Route was built")
         });
 
     $('#buttons button').attr('disabled', false);
@@ -123,10 +117,10 @@ function show_route(route_nodes, duration, distance, deviceID) {
     cars[deviceID].routeLine = routeLine;
 }
 
+let traffic_signals_on_route = {};
+
 // here could be some bugs
 function show_route_traffic_signals(traffic_signals_nodes, deviceID) {
-    let traffic_signals_on_route = {};
-
     if (cars[deviceID].traffic_signals_on_route) {
         for (let signal in traffic_signals_on_route) {
             map.removeLayer(cars[deviceID].traffic_signals_on_route[signal]);

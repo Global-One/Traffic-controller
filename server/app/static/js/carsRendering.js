@@ -115,7 +115,7 @@ function UpdateCarsData() {
                         if (car_telemetry) {
                             let car = cars[car_ids[i]];
                             car['last_telemetry_id'] = car_telemetry.length - 1;
-                            let simulation = new Move(car.marker);
+                            let simulation = new Move(car.marker, car_ids[i]);
                             car['simulation'] = simulation;
                             car['isStarted'] = false;
                             for (let telemetry in car_telemetry) {
