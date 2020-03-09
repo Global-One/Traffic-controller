@@ -1,5 +1,5 @@
 let upd;
-let background_music = new Audio('http://dl160.y2mate.com/?file=M3R4SUNiN3JsOHJ6WWQ2a3NQS1Y5ZGlxVlZIOCtyZ05sdHd1emhFdlNvOEg2OFlMMHU2aGFQOWFFYU1abk5tbEhZNVZ1Qmo1UDkyYlkwbVB2NVFqZldPQTQ5NWcvRzNwNm9FMVRkeHpVMU9xdmV1enhYUWtyd0t3TFA3VVI3VlhlWEkxb0U5dW1Hdll4Zi9kclJ6NXYwS3BtRW1HWmlVMXBDNDBPZU9Cb3BoRWhXaUdTZGFxM29CVzZ5V1Q2NTlIenRtdDZWbWtqZU5uNjVJa0RoQTZJY1VObjUvdHovbmVvRk1Ralp4Qml4ajgrclgvVmNsbVNlT05iMnBqS0hBPQ%3D%3D');
+let background_music = new Audio('audio/DejaVu.mp3');
 
 $("#start").click(() => {
     let deviceID = $('#marker_id').val();

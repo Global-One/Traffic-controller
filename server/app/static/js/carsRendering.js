@@ -130,7 +130,7 @@ function UpdateCarsData() {
                             if (car_telemetry) {
                                 if (cars[car_ids[i]].last_telemetry_id === car_telemetry.length - 1) {
                                     let now = new Date();
-                                    if (now.getTime() - cars[car_ids[i]].last_update.getTime() > 3000) {
+                                    if (now.getTime() - cars[car_ids[i]].last_update.getTime() > 2000) {
                                         cars[car_ids[i]].simulation.start(car_telemetry[car_telemetry.length - 1]);
                                         cars[car_ids[i]].simulation.stop();
                                         cars[car_ids[i]].last_update = now;
