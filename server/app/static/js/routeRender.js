@@ -101,10 +101,8 @@ $('#build_route').click(() => {
             $("#loading").hide();
             $('#reverse_route').attr('disabled', false);
             logEvent("Route was built")
+            $('#buttons button').attr('disabled', false);
         });
-
-    $('#buttons button').attr('disabled', false);
-    logEvent("Route was built")
 });
 
 function show_route(route_nodes, duration, distance, deviceID) {

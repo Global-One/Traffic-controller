@@ -218,7 +218,7 @@ def send_data_from_bound_device(
             client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
 
         client.publish(device_topic, dumps(telemetry), qos=1)
-        time.sleep(1)
+        time.sleep(0.75)
         global packages
         packages += 1
 
@@ -234,7 +234,8 @@ def send_data_from_bound_device(
                 algorithm,
                 ca_certs,
                 mqtt_bridge_hostname,
-                mqtt_bridge_port
+                mqtt_bridge_port,
+                device_id
             )
     client.loop_stop()
 
