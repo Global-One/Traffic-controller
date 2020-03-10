@@ -1,62 +1,53 @@
-from firebase_admin import initialize_app
+from json import loads
+from math import sin, cos, atan2, pi, sqrt
+from os import getenv
 
 from firebase_admin import credentials
 from firebase_admin import db
+from firebase_admin import initialize_app
 
-from json import loads
-from os import getenv
-
-import json
-import requests
-
-from requests import get
-
-import math
-
-initialize_app(credential=credentials.Certificate(loads(getenv("FIREBASE_CONFIG"))), options={'databaseURL': 'https://green-waves.firebaseio.com/'})
-
-
-def degreesToRadians(degrees):
-    return (degrees / math.pi) * 180
+initialize_app(credential=credentials.Certificate(loads(getenv("FIREBASE_CONFIG"))),
+               options={'databaseURL': 'https://green-waves.firebaseio.com/'})
 
 
 def traffic_light_changer(request):
-
     request_args = request.args
     car_id = request_args['car_id']
-    lat_car_rad = float(request_args['lat'])
-    lon_car_rad = float(request_args['lon'])
-
-    earthRadiusKm = 6371
+    lat_car = float(request_args['lat'])
+    lng_car = float(request_args['lon'])
 
     distance_min = 0
     nearest_light = ""
 
     routes_dict_last = int(db.reference(f'devices/{car_id}').child("last_route_id").get())
     reference = f'devices/{car_id}/routes/{routes_dict_last}/traffic_signals'
-    traffic_light_dict = dict(db.reference(reference).get())
+    traffic_light_dict = db.reference(reference).get()
 
-    for traffic_light in traffic_light_dict:
+    for i, traffic_light in enumerate(traffic_light_dict):
+        lat_tl = traffic_light['lat']
+        lng_tl = traffic_light['lng']
 
-        lat_tl_rad = traffic_light_dict[traffic_light]['lat']
-        lon_tl_rad = traffic_light_dict[traffic_light]['lng']
+        distance = measure(lat_car, lng_car, lat_tl, lng_tl)
 
-        dLat = degreesToRadians(lat_car_rad - lat_tl_rad)
-        dLon = degreesToRadians(lon_car_rad - lon_tl_rad)
-
-        lat_tl = degreesToRadians(lat_tl_rad)
-        lat_car = degreesToRadians(lat_car_rad)
-
-        a = math.sin(dLat / 2) * math.sin(dLat / 2) + math.sin(dLon / 2) * math.sin(dLon / 2) * math.cos(lat_tl) * math.cos(lat_car)
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        distance = c * earthRadiusKm
-
-        if not distance_min:
+        if distance <= 0.15:
             distance_min = distance
-            nearest_light = traffic_light
-        else:
-            if distance < distance_min and distance <= 150:
-                distance_min = distance
-                nearest_light = traffic_light
-    db.reference(reference).child(nearest_light).child("state").set(True) 
-    return str(nearest_light)
+            nearest_light = str(i)
+        if distance_min and distance < distance_min:
+            distance_min = distance
+            nearest_light = str(i)
+
+    if nearest_light:
+        db.reference(reference).child(nearest_light).child("state").set(True)
+        return str(nearest_light)
+    return "No traffic light to enable."
+
+
+# https://stackoverflow.com/questions/639695/how-to-convert-latitude-or-longitude-to-meters
+def measure(lat1, lon1, lat2, lon2):  # generally used geo measurement function
+    R = 6378.137  # Radius of earth in KM
+    dLat = lat2 * pi / 180 - lat1 * pi / 180
+    dLon = lon2 * pi / 180 - lon1 * pi / 180
+    a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin(dLon / 2) * sin(dLon / 2)
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    d = R * c
+    return d * 1000  # meters

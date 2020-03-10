@@ -1,4 +1,15 @@
-function Move(marker) {
+let pin_to_car = "";
+
+// function to swap origin and destination coordinates
+$('#reverse_route').click(() => {
+    if (pin_to_car != "") {
+        pin_to_car = ""
+    } else {
+        pin_to_car = $('#marker_id').val();
+    }
+});
+
+function Move(marker, idshnik) {
     let i;
     let fps;
     let carPos;
@@ -41,9 +52,12 @@ function Move(marker) {
         let value = carPos[i++];
         x = value[0];
         y = value[1];
+        $('#route_start').val(`${x}, ${y}`)
+        if (pin_to_car == idshnik) map.panTo([x, y]);
         let latlng = L.latLng(x, y);
         marker.setLatLng(latlng);
-        marker.setRotationAngle(90 - _data["state"]["course"]);
+        //marker.setRotationAngle(90 - _data["state"]["course"]);
+        marker.setRotationAngle(0);
     }
 
     function start(data, seconds = 0) {

@@ -89,6 +89,10 @@ input::-webkit-inner-spin-button {
     border: none;
 }
 
+.card-text {
+    font-size: 0.7rem;
+}
+
 #startDiv {
     margin: 0;
 }
